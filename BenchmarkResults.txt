@@ -1,0 +1,84 @@
+First example: FD vs. ForwardDiff. Rosenbrock with a small number of function outputs, since ForwardDiff can frequently outperform reverse methods when the number of outputs is small. The advantage of FD increases as the number of terms in Rosenbrock increases, as you would expect.
+
+julia> test_fd_rosenbrock(5)
+BenchmarkTools.Trial: 10000 samples with 1000 evaluations.      
+ Range (min … max):  3.800 ns … 8.200 ns  ┊ GC (min … max): 0.00% … 0.00%
+ Time  (median):     4.000 ns             ┊ GC (median):    0.00%
+ Time  (mean ± σ):   4.033 ns ± 0.150 ns  ┊ GC (mean ± σ):  0.00% ± 0.00%
+
+                                        █                 ▄     
+  ▃▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▄▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█ ▂   
+  3.8 ns         Histogram: frequency by time        4.1 ns <   
+
+ Memory estimate: 0 bytes, allocs estimate: 0.
+ 
+julia> test_rosenbrock_forward_diff(5)
+BenchmarkTools.Trial: 10000 samples with 987 evaluations.       
+ Range (min … max):  58.359 ns … 85.512 ns  ┊ GC (min … max): 0.00% … 0.00%
+ Time  (median):     62.209 ns              ┊ GC (median):    0.00%
+ Time  (mean ± σ):   62.309 ns ±  0.752 ns  ┊ GC (mean ± σ):  0.00% ± 0.00%
+
+                               █▅▅▅▂▆
+  ▂▂▂▁▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▃▃▄▄▆██████▆▄▄▃▃▃▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂ ▃ 
+  58.4 ns         Histogram: frequency by time        65.6 ns < 
+
+ Memory estimate: 0 bytes, allocs estimate: 0.
+
+
+
+Second example: FD vs. ReverseDiff, example taken from the ReverseDiff documentation.
+
+julia> time_fd_reverse_diff_example(10)
+
+BenchmarkTools.Trial: 10000 samples with 4 evaluations.
+ Range (min … max):  7.225 μs …  30.600 μs  ┊ GC (min … max): 0.00% … 0.00%
+ Time  (median):     7.525 μs               ┊ GC (median):    0.00%
+ Time  (mean ± σ):   7.597 μs ± 554.633 ns  ┊ GC (mean ± σ):  0.00% ± 0.00%
+
+  ▂▂▃▃▆█▆▆▃                                                   ▂ 
+  █████████▅▅▅▅▅▇█▇▇▆▆▆▆▆▆██▅▅▄▅▄▁▅▄▄▄▄▅▁▄▄▅▄▄▄▁▄▄▄▁▄▃▄▄▃▃▅▁▄ █ 
+  7.22 μs      Histogram: log(frequency) by time      10.3 μs < 
+
+ Memory estimate: 0 bytes, allocs estimate: 0.
+
+julia> time_reverse_diff(10)
+BenchmarkTools.Trial: 10000 samples with 1 evaluation.
+ Range (min … max):  188.800 μs …  1.815 ms  ┊ GC (min … max): 0.00% … 86.39%
+ Time  (median):     197.800 μs              ┊ GC (median):    0.00%
+ Time  (mean ± σ):   209.997 μs ± 84.370 μs  ┊ GC (mean ± σ):  2.25% ±  5.00%
+
+    ▃▅██▄▄               ▁▂▂▃▄▄▃▁                              ▂
+  ▄████████▇▆▅▅▇▇▇▆▆▄▅▅▅▇█████████▆▆▅▅▄▇▅▆▆▆▃▄▄▄▄▅▅▅▄▅▃▄▄▁▄▃▃▅ █
+  189 μs        Histogram: log(frequency) by time       294 μs <
+
+ Memory estimate: 175.88 KiB, allocs estimate: 201.
+
+
+Third example: FD vs Enzyme, rosenbrock again but this time with a much larger number of output functions than in Example 1.
+
+julia> time_fd_rosenbrock(1000)
+BenchmarkTools.Trial: 10000 samples with 15 evaluations.
+ Range (min … max):  980.000 ns …  1.680 μs  ┊ GC (min … max): 0.00% … 0.00%
+ Time  (median):       1.007 μs              ┊ GC (median):    0.00%
+ Time  (mean ± σ):     1.007 μs ± 19.274 ns  ┊ GC (mean ± σ):  0.00% ± 0.00%
+
+                               █
+  ▂▁▁▁▁▁▁▃▁▁▁▁▁▁▁▃▁▁▁▁▁▁▅▁▁▁▁▁▁█▁▁▁▁▁▁▁▃▁▁▁▁▁▁▂▁▁▁▁▁▁▁▃▁▁▁▁▁▁▂ ▂
+  980 ns          Histogram: frequency by time         1.03 μs <
+
+ Memory estimate: 0 bytes, allocs estimate: 0.
+
+
+julia> time_enzyme(1000)
+BenchmarkTools.Trial: 10000 samples with 6 evaluations.
+ Range (min … max):  5.150 μs …  10.367 μs  ┊ GC (min … max): 0.00% … 0.00%
+ Time  (median):     5.517 μs               ┊ GC (median):    0.00%
+ Time  (mean ± σ):   5.526 μs ± 100.684 ns  ┊ GC (mean ± σ):  0.00% ± 0.00%
+
+                             ▂▄ ▅█ ██ ▄▃ ▁
+  ▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▁▂▃▁▃▅▁▅▇▁██▁██▁██▁██▁█▆▁▅▄▁▃▃▁▃▃▁▃▃▁▃▃▁▂▂ ▃ 
+  5.15 μs         Histogram: frequency by time         5.8 μs < 
+
+ Memory estimate: 0 bytes, allocs estimate: 0.
+
+julia> 
