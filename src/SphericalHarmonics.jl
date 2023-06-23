@@ -66,8 +66,6 @@ export N
 end
 export Y
 
-SHFunctions(max_l, x::Node, y::Node, z::Node) = SHFunctions(Vector{Node}(undef, 0), max_l, x, y, z)
-
 function SHFunctions(shfunc, max_l, x, y, z)
     for l in 0:max_l-1
         for m in -l:l

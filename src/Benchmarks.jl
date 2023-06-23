@@ -51,8 +51,12 @@ export forward_diff_rosenbrock_jacobian
 function forward_diff_R¹⁰⁰R¹⁰⁰(nsize)
 end
 
+function forward_diff_rosenbrock_hessian(nterms)
+end
 
-"""This function pairs with `test_rosenbrock_forward_dif`"""
+function forward_diff_SHFunctions(nterms)
+end
+
 function fd_rosenbrock_jacobian(nterms)
     x = rand(nterms)
     out = similar(x, 1, length(x))
@@ -68,15 +72,16 @@ export fd_rosenbrock_jacobian
 
 function fd_rosenbrock_hessian(nterms)
     x = rand(nterms)
-    out = similar(x, length(x), length(x))
+    out = fill(eltype(x), (nterms, nterms)) #now have to initialize array before passing it in.
     inp = FastDifferentiation.make_variables(:inp, length(x))
 
 
-    jac = FastDifferentiation.hessian(rosenbrock(inp), inp)
-    fd_func = FastDifferentiation.make_function(jac, inp, in_place=true)
-    fd_func(x, out)
-    display(out)
-    @benchmark $fd_func($x, $out)
+    hess = FastDifferentiation.hessian(rosenbrock(inp), inp)
+    println("numberops $(FastDifferentiation.number_of_operations(hess))")
+    fd_func = FastDifferentiation.make_function(hess, inp, in_place=true)
+    # fd_func(x, out)
+
+    # @benchmark $fd_func($x, $out)
 end
 export fd_rosenbrock_hessian
 
@@ -128,7 +133,7 @@ function reverse_diff_rosenbrock_jacobian(nsize)
 end
 
 function reverse_diff_rosenbrock_hessian(nsize)
-    input = rand(1, 1)
+    input = rand(nsize)
     hcfg = ReverseDiff.HessianConfig(input)
     h_tape = ReverseDiff.HessianTape(rosenbrock, input, hcfg)
 
@@ -136,9 +141,14 @@ function reverse_diff_rosenbrock_hessian(nsize)
 
     output = rand(nsize, nsize)
 
-    return @benchmark ReverseDiff.hessian()
+    return @benchmark ReverseDiff.hessian!($output, $compiled_h_tape, $input)
 
 end
+export reverse_diff_rosenbrock_hessian
+
+function reverse_diff_SHFunctions()
+end
+export reverse_diff_SHFunctions
 
 
 """This FD function is used to compare against both ReverseDiff.jl and Enzyme.jl"""
@@ -182,8 +192,10 @@ export enzyme_rosenbrock_gradient
 function enzyme_rosenbrock_hessian(nterms)
 end
 
+function enzyme_SHFunctions(nterms)
+end
 
-function fd_SHFunctions_jacobian(nterms)
+function fd_SHFunctions(nterms)
     FastDifferentiation.@variables x y z
 
     symb_func = SHFunctions(nterms, x, y, z)
@@ -196,5 +208,22 @@ function fd_SHFunctions_jacobian(nterms)
     @benchmark $func(inputs, $result) setup = inputs = rand(3)
 end
 export fd_SHFunctions_jacobian
+
+const hessian_benchmarks = (fd_rosenbrock_hessian, enzyme_rosenbrock_hessian, forward_diff_rosenbrock_hessian, reverse_diff_rosenbrock_hessian)
+const jacobian_benchmarks = [
+    fd_rosenbrock_jacobian, enzyme_rosenbrock_gradient, forward_diff_rosenbrock_jacobian, reverse_diff_rosenbrock_jacobian,
+    fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰]
+
+function run_hessian_benchmarks(nterms)
+    benches = [f(nterms) for f in hessian_benchmarks]
+    times = [minimum(x.times) for x in benches]
+
+    row = "| "
+    for time in times
+        row *= " $time |"
+    end
+    return row
+end
+export run_hessian_benchmarks
 
 end #module
