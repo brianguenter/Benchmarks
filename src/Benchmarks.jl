@@ -9,11 +9,39 @@ import Enzyme
 using Memoize
 using StaticArrays
 
-
-using ForwardDiff: GradientConfig, Chunk, gradient!
-
 # include("ODE.jl")
 include("SphericalHarmonics.jl")
+include("ODE.jl")
+
+
+function ODE_comparison()
+    y = FastDifferentiation.make_variables(:y, 20)
+    dy = Vector{FastDifferentiation.Node}(undef, 20)
+    ODE.f(dy, y, nothing, nothing)
+
+    jac = FastDifferentiation.jacobian(dy, y)
+    J = Matrix{FastDifferentiation.Node}(undef, 20, 20)
+    ODE.fjac(J, y, nothing, nothing)
+    println("number of operations for FD: $(FastDifferentiation.number_of_operations(jac))")
+    println("number of operations for hand_jac: $(FastDifferentiation.number_of_operations(J))")
+
+    #printout non_zeros
+    for i in eachindex(jac)
+        println("FD: $(jac[i])")
+        println("hand: $(J[i])\n")
+    end
+
+    fd_jac = FastDifferentiation.make_function(jac, y, in_place=true)
+    float_J1 = Matrix{Float64}(undef, 20, 20)
+    float_J2 = Matrix{Float64}(undef, 20, 20)
+    float_y = rand(20)
+    fd_jac(float_y, float_J1)
+
+    ODE.fjac(float_J2, float_y, nothing, nothing)
+    @assert isapprox(float_J1, float_J2, atol=1e-11)
+
+end
+export ODE_comparison
 
 # let's use a Rosenbrock function as our target function
 function rosenbrock(x)
@@ -55,7 +83,24 @@ function forward_diff_rosenbrock_hessian(nterms)
 end
 
 function forward_diff_SHFunctions(nterms)
+    x = rand(3)
+
+    out = similar(x, (nterms^2, 3))
+    fastest = typemax(Float64)
+    local best_trial
+    sh_wrapper(x) = SHFunctions(nterms, x[1], x[2], x[3])
+
+    for chunk_size in 1:1:3
+        cfg = ForwardDiff.JacobianConfig(sh_wrapper, x, ForwardDiff.Chunk{chunk_size}())
+        trial = @benchmark ForwardDiff.jacobian($sh_wrapper, $x, $cfg)
+        if minimum(trial).time < fastest
+            best_trial = trial
+            fastest = minimum(trial).time
+        end
+    end
+    return best_trial
 end
+export forward_diff_SHFunctions
 
 function fd_rosenbrock_jacobian(nterms)
     x = rand(nterms)
@@ -199,6 +244,7 @@ function fd_SHFunctions(nterms)
     FastDifferentiation.@variables x y z
 
     symb_func = SHFunctions(nterms, x, y, z)
+
     FastDifferentiation.jacobian(symb_func, [x, y, z])
 
     result = Matrix{Float64}(undef, nterms^2, 3)
@@ -207,7 +253,7 @@ function fd_SHFunctions(nterms)
 
     @benchmark $func(inputs, $result) setup = inputs = rand(3)
 end
-export fd_SHFunctions_jacobian
+export fd_SHFunctions
 
 const hessian_benchmarks = (fd_rosenbrock_hessian, enzyme_rosenbrock_hessian, forward_diff_rosenbrock_hessian, reverse_diff_rosenbrock_hessian)
 const jacobian_benchmarks = [

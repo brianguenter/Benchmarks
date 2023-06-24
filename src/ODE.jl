@@ -1,7 +1,4 @@
-using OrdinaryDiffEq, DiffEqDevTools, Sundials, ParameterizedFunctions, Plots, ODE, ODEInterfaceDiffEq, LSODA, LinearSolve
-
-gr() # gr(fmt=:png)
-using LinearAlgebra
+module ODE
 
 const k1 = .35e0
 const k2 = .266e2
@@ -79,8 +76,9 @@ function f(dy, y, p, t)
     dy[20] = -r25 + r24
 end
 
+
 function fjac(J, y, p, t)
-    J .= 0.0
+    J .= zero(eltype(J))
     J[1, 1] = -k1 - k10 * y[11] - k14 * y[6] - k23 * y[4] - k24 * y[19]
     J[1, 11] = -k10 * y[1] + k9 * y[2]
     J[1, 6] = -k14 * y[1]
@@ -183,21 +181,25 @@ function fjac(J, y, p, t)
     J[20, 1] = k24 * y[19]
     J[20, 19] = k24 * y[1]
 
-    return
+    return nothing
 end
 
-u0 = zeros(20)
-u0[2] = 0.2
-u0[4] = 0.04
-u0[7] = 0.1
-u0[8] = 0.3
-u0[9] = 0.01
-u0[17] = 0.007
+end #module
 
-temp_jac(J)
-prob = ODEProblem(ODEFunction{true,SciMLBase.FullSpecialize}(f, jac=fjac), u0, (0.0, 60.0))
+# u0 = zeros(20)
+# u0[2] = 0.2
+# u0[4] = 0.04
+# u0[7] = 0.1
+# u0[8] = 0.3
+# u0[9] = 0.01
+# u0[17] = 0.007
 
-sol = solve(prob, Rodas5(), abstol=1 / 10^14, reltol=1 / 10^14)
-test_sol = TestSolution(sol)
-abstols = 1.0 ./ 10.0 .^ (4:11)
-reltols = 1.0 ./ 10.0 .^ (1:8);
+# temp_jac(J)
+# prob = ODEProblem(ODEFunction{true,SciMLBase.FullSpecialize}(f, jac=fjac), u0, (0.0, 60.0))
+
+# sol = solve(prob, Rodas5(), abstol=1 / 10^14, reltol=1 / 10^14)
+# test_sol = TestSolution(sol)
+# abstols = 1.0 ./ 10.0 .^ (4:11)
+# reltols = 1.0 ./ 10.0 .^ (1:8);
+
+

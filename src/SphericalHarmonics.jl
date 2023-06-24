@@ -66,10 +66,23 @@ export N
 end
 export Y
 
-function SHFunctions(shfunc, max_l, x, y, z)
+function SHFunctions(max_l, x::T, y::T, z::T) where {T}
+    shfunc = Vector{T}(undef, max_l^2)
     for l in 0:max_l-1
         for m in -l:l
             push!(shfunc, Y(l, m, x, y, z))
+        end
+    end
+
+    return shfunc
+end
+
+function SHFunctions(max_l, x::FastDifferentiation.Node, y::FastDifferentiation.Node, z::FastDifferentiation.Node)
+    shfunc = FastDifferentiation.Node[]
+
+    for l in 0:max_l-1
+        for m in -l:l
+            push!(shfunc, (Y(l, m, x, y, z)))
         end
     end
 
