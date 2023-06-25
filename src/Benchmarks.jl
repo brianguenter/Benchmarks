@@ -13,9 +13,8 @@ using StaticArrays
 include("SphericalHarmonics.jl")
 include("ODE.jl")
 
-const nsize = 10
+const global n_size = 10
 
-# let's use a Rosenbrock function as our target function
 function rosenbrock(x)
     a = one(eltype(x))
     b = 100 * a
@@ -58,8 +57,6 @@ include("EnzymeBenchmarks.jl")
 include("FDBenchmarks.jl")
 include("ReverseDiffBenchmarks.jl")
 include("ForwardDiffBenchmarks.jl")
-
-
 
 # const hessian_benchmarks = (fd_rosenbrock_hessian, enzyme_rosenbrock_hessian, forward_diff_rosenbrock_hessian, reverse_diff_rosenbrock_hessian)
 const rosenbrock_hessian_benchmarks = (fd_rosenbrock_hessian_sparse, fd_rosenbrock_hessian, forward_diff_rosenbrock_hessian, reverse_diff_rosenbrock_hessian)

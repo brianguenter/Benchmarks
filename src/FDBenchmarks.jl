@@ -67,7 +67,7 @@ function fd_R¹⁰⁰R¹⁰⁰(ignore)
     bin = reshape(bv, n_size, n_size)
     tmp_mat = Matrix{Float64}(undef, n_size^2, length(av) + length(bv))
 
-    orig_func = vec(Node.(f(ain, bin)))
+    orig_func = vec(FastDifferentiation.Node.(f(ain, bin)))
     inputs = vcat(av, bv)
     # @info "Starting symbolic Jacobian"
     dgraph = FastDifferentiation.DerivativeGraph(orig_func)
