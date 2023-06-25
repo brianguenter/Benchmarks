@@ -25,12 +25,6 @@ function ODE_comparison()
     println("number of operations for FD: $(FastDifferentiation.number_of_operations(jac))")
     println("number of operations for hand_jac: $(FastDifferentiation.number_of_operations(J))")
 
-    #printout non_zeros
-    for i in eachindex(jac)
-        println("FD: $(jac[i])")
-        println("hand: $(J[i])\n")
-    end
-
     fd_jac = FastDifferentiation.make_function(jac, y, in_place=true)
     float_J1 = Matrix{Float64}(undef, 20, 20)
     float_J2 = Matrix{Float64}(undef, 20, 20)
@@ -40,6 +34,7 @@ function ODE_comparison()
     ODE.fjac(float_J2, float_y, nothing, nothing)
     @assert isapprox(float_J1, float_J2, atol=1e-11)
 
+    return (@benchmark(ODE.fjac($float_J2, $float_y, nothing, nothing)), @benchmark $fd_jac($float_y, $float_J1))
 end
 export ODE_comparison
 
