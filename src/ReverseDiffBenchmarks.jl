@@ -1,6 +1,5 @@
 """This function pairs with `time_fd_reverse_diff_example`"""
 function reverse_diff_R¹⁰⁰R¹⁰⁰(ignore)
-    global nsize
     # some objective functions to work with
     f(a, b) = (a + b) * (a * b)'
 
@@ -41,7 +40,6 @@ function reverse_diff_rosenbrock_hessian(nsize)
     output = rand(nsize, nsize)
 
     return @benchmark ReverseDiff.hessian!($output, $compiled_h_tape, $input)
-
 end
 export reverse_diff_rosenbrock_hessian
 

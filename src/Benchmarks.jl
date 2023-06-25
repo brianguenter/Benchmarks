@@ -76,7 +76,7 @@ export R100_R100_jacobian_benchmarks
 function run_benchmarks(benchmarks, nterms)
     benches = [f(nterms) for f in benchmarks]
     fd_time = minimum(benches[1].times)
-    times = [minimum(x.times) / fd_time for x in benches]
+    times = [x !== nothing ? minimum(x.times) / fd_time : -1 for x in benches]
 
     return times
 end
