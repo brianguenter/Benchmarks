@@ -8,6 +8,8 @@ This is a set of benchmarks to compare 4 AD algorithms:
 
 The problems test the ability to compute Jacobians, Hessians, and to exploit sparsity in the derivative. The last problem `ODE` also compares the AD algorithms to a hand optimized Jacobian.
 
+I have done my best to make the benchmarks fair but some of these algorithms have complicated calling API's. It is not always easy to figure out the most efficient way to compute the derivative. If you spot an error or see a way to make an algorithm more efficient create a PR and I'll update the code and results.
+
 1. **Rosenbrock**. Compute the gradient and the Hessian of the rosenbrock function:
 
 ```
