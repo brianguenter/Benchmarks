@@ -1,5 +1,5 @@
 """This function pairs with `time_fd_reverse_diff_example`"""
-function reverse_diff_R¹⁰⁰R¹⁰⁰(ignore)
+function reverse_diff_R¹⁰⁰R¹⁰⁰(nsize)
     # some objective functions to work with
     f(a, b) = (a + b) * (a * b)'
 

@@ -19,14 +19,13 @@ function forward_diff_rosenbrock_jacobian(nterms)
 end
 export forward_diff_rosenbrock_jacobian
 
-function forward_diff_R¹⁰⁰R¹⁰⁰(ignore)
-    global nsize
+function forward_diff_R¹⁰⁰R¹⁰⁰(nsize)
     # some objective functions to work with
     f(a, b) = (a + b) * (a * b)'
 
     # some inputs and work buffers to play around with
     a, b = rand(nsize, nsize), rand(nsize, nsize)
-    inputs = (a, b)
+    inputs = [a, b]
 
     results = (similar(a, nsize^2, nsize^2), similar(b, nsize^2, nsize^2))
 
@@ -87,3 +86,23 @@ function forward_diff_SHFunctions(nterms)
     return best_trial
 end
 export forward_diff_SHFunctions
+
+function forward_diff_ODE()
+    swap_args!(y, x) = ODE.f(x, y, nothing, nothing)
+
+    y = rand(20)
+    dy = Vector{Float64}(undef, 20)
+
+    for chunk_size in 1:3:20
+        cfg = ForwardDiff.JacobianConfig(swap_args!, y, dy, ForwardDiff.Chunk{chunk_size}())
+        trial = @benchmark ForwardDiff.jacobian($swap_args!, $y, $cfg)
+        if minimum(trial).time < fastest
+            best_trial = trial
+            fastest = minimum(trial).time
+        end
+    end
+
+    return best_trial
+end
+export forward_diff_ODE
+

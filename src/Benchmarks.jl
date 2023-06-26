@@ -13,8 +13,6 @@ using StaticArrays
 include("SphericalHarmonics.jl")
 include("ODE.jl")
 
-const global n_size = 10
-
 function rosenbrock(x)
     a = one(eltype(x))
     b = 100 * a
@@ -25,6 +23,8 @@ function rosenbrock(x)
     return result
 end
 export rosenbrock
+
+
 
 function ODE_comparison()
     y = FastDifferentiation.make_variables(:y, 20)
@@ -72,6 +72,9 @@ export rosenbrock_jacobian_benchmarks
 const R100_R100_jacobian_benchmarks = (fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰)
 export R100_R100_jacobian_benchmarks
 
+const SH_Functions_benchmarks = (fd_SHFunctions, forward_diff_SHFunctions, reverse_diff_SHFunctions, enzyme_SHFunctions)
+
+const ODE_benchmarks = (fd_ODE, forward_diff_ODE, reverse_diff_ODE, enzyme_ODE)
 
 function run_benchmarks(benchmarks, nterms)
     benches = [f(nterms) for f in benchmarks]

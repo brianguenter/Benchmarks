@@ -56,8 +56,7 @@ end
 export fd_reverse_AD_rosenbrock_jacobian
 
 """This FD function is used to compare against both ReverseDiff.jl and Enzyme.jl"""
-function fd_R¹⁰⁰R¹⁰⁰(ignore)
-    global n_size
+function fd_R¹⁰⁰R¹⁰⁰(n_size)
     f(a, b) = (a + b) * (a * b)'
 
     av = FastDifferentiation.make_variables(:ain, n_size^2)
@@ -83,3 +82,36 @@ function fd_R¹⁰⁰R¹⁰⁰(ignore)
     return bench1
 end
 export fd_R¹⁰⁰R¹⁰⁰
+
+
+function fd_SHFunctions(nterms)
+    FastDifferentiation.@variables x y z
+
+    symb_func = SHFunctions(nterms, x, y, z)
+
+    FastDifferentiation.jacobian(symb_func, [x, y, z])
+
+    result = Matrix{Float64}(undef, nterms^2, 3)
+
+    func = FastDifferentiation.make_function(symb_func, SVector(x, y, z), in_place=true)
+
+    @benchmark $func(inputs, $result) setup = inputs = rand(3)
+end
+export fd_SHFunctions
+
+
+function fd_ODE()
+    y = FastDifferentiation.make_variables(:y, 20)
+    dy = Vector{FastDifferentiation.Node}(undef, 20)
+    ODE.f(dy, y, nothing, nothing)
+
+    jac = FastDifferentiation.jacobian(dy, y)
+    J = Matrix{FastDifferentiation.Node}(undef, 20, 20)
+
+    fd_exe = FastDifferentiation.make_function(jac, y, in_place=true)
+    float_J1 = Matrix{Float64}(undef, 20, 20)
+    float_y = rand(20)
+
+    return @benchmark $fd_exe($float_y, $float_J1)
+end
+export fd_ODE
