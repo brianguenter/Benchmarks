@@ -215,7 +215,7 @@ end
 
 </details>
 
-This is the hand optimized Jacobian, ∂dy/∂y, to compare to. Your Jacobian function should zero out the in place array J which the Jacobian result will written into:
+This is the hand optimized Jacobian, ∂dy/∂y, to compare to. Your Jacobian function should zero out the in place array J which the Jacobian result will be written into:
 <details>
    <summary> Hand optimized Jacobian </summary>
 
