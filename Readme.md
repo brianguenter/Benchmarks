@@ -26,7 +26,6 @@ export rosenbrock
 ```
 The Hessian is extremely sparse so algorithms that can detect sparsity will have an advantage.
 
-
 2. **Matrix function**. Compute the Jacobian of this function:
 
 ```
@@ -34,9 +33,10 @@ The Hessian is extremely sparse so algorithms that can detect sparsity will have
 ```
 
 3. **SphericalHarmonics**. Compute the Jacobian of `SHFunctions` which constructs the spherical harmonics of order `n`:
-<details>
-    <summary> Spherical harmonics function </summary>
+
+
 ```
+
 @memoize function P(l, m, z)
     if l == 0 && m == 0
         return 1.0
@@ -129,12 +129,10 @@ function SHFunctions(max_l, x::FastDifferentiation.Node, y::FastDifferentiation.
 end
 export SHFunctions
 ```
-</details>
+
 
 4. **ODE**. Compute the 20x20 Jacobian, ∂dy/∂y, of this function (used in an ODE problem) and compare to a hand optimized Jacobian. The Jacobian is approximately 25% non-zeros so algorithms that exploit sparsity in the derivative will have an advantage.
 
-<details>
-     <summary> Original ODE function </summary>
 
 ```
 
@@ -215,11 +213,8 @@ function f(dy, y, p, t)
 end
 ```
 
-</details>
 
 This is the hand optimized Jacobian, ∂dy/∂y, to compare to. Your Jacobian function should zero out the in place array J which the Jacobian result will be written into:
-<details>
-   <summary> Hand optimized ODE Jacobian </summary>
 
 ```
 function fjac(J, y, p, t)
@@ -329,4 +324,4 @@ function fjac(J, y, p, t)
     return nothing
 end
 ```
-</details>
+
