@@ -1,5 +1,5 @@
 """This function pairs with `time_fd_rosenbrock`"""
-function forward_diff_rosenbrock_jacobian(nterms)
+function forward_diff_rosenbrock_gradient(nterms)
     x = rand(nterms)
 
     # output buffer
@@ -17,7 +17,7 @@ function forward_diff_rosenbrock_jacobian(nterms)
     end
     return best_trial
 end
-export forward_diff_rosenbrock_jacobian
+export forward_diff_rosenbrock_gradient
 
 function forward_diff_R¹⁰⁰R¹⁰⁰(nsize)
     # some objective functions to work with
@@ -25,7 +25,7 @@ function forward_diff_R¹⁰⁰R¹⁰⁰(nsize)
 
     # some inputs and work buffers to play around with
     a, b = rand(nsize, nsize), rand(nsize, nsize)
-    inputs = [a, b]
+    inputs = (a, b)
 
     results = (similar(a, nsize^2, nsize^2), similar(b, nsize^2, nsize^2))
 
@@ -33,8 +33,8 @@ function forward_diff_R¹⁰⁰R¹⁰⁰(nsize)
     local best_trial
 
     for chunk_size in 1:3:min(nsize, 10)
-        cfg = ForwardDiff.GradientConfig(f, inputs, ForwardDiff.Chunk{chunk_size}())
-        trial = @benchmark ForwardDiff.gradient!($results, $f, $x, $cfg)
+        cfg = ForwardDiff.JacobianConfig(f, inputs, ForwardDiff.Chunk{chunk_size}())
+        trial = @benchmark ForwardDiff.jacobian!($results, $f, $inputs, $cfg)
         if minimum(trial).time < fastest
             best_trial = trial
             fastest = minimum(trial).time
