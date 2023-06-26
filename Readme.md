@@ -121,7 +121,7 @@ export SHFunctions
 ```
 </details>
 
-4. Compute the Jacobian, ∂dy/∂y, of this function used in an ODE problem and compare to a hand optimized Jacobian:
+4. Compute the Jacobian, ∂dy/∂y, of this function (used in an ODE problem) and compare to a hand optimized Jacobian:
 
 <details>
      <summary> Original function </summary>
