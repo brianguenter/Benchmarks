@@ -121,7 +121,7 @@ export SHFunctions
 ```
 </details>
 
-4. Compute the Jacobian of this function used in an ODE problem and compare to a hand optimized Jacobian:
+4. Compute the Jacobian, ∂dy/∂y, of this function used in an ODE problem and compare to a hand optimized Jacobian:
 
 <details>
      <summary> Original function </summary>
@@ -207,8 +207,9 @@ end
 
 </details>
 
-This is the hand optimized Jacobian, ∂dy/∂y, to compare to:
+This is the hand optimized Jacobian, ∂dy/∂y, to compare to. Your Jacobian function should zero out the in place array J which the Jacobian result will written into:
 <details>
+   <summary> Hand optimized Jacobian </summary>
 
 ```
 function fjac(J, y, p, t)
