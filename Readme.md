@@ -1,6 +1,14 @@
 # Benchmark Problems
 
-1. Compute the gradient and the Hessian of the rosenbrock function:
+This is a set of benchmarks to compare 4 AD algorithms:
+* FastDifferentiation
+* ForwardDiff
+* ReverseDiff
+* Enzyme
+
+The problems test the ability to compute Jacobians, Hessians, and to exploit sparsity in the derivative. The last problem `ODE` also compares the AD algorithms to a hand optimized Jacobian.
+
+1. **Rosenbrock**. Compute the gradient and the Hessian of the rosenbrock function:
 
 ```
 function rosenbrock(x)
@@ -17,13 +25,13 @@ export rosenbrock
 The Hessian is extremely sparse so algorithms that can detect sparsity will have an advantage.
 
 
-2. Compute the Jacobian of this function:
+2. **Matrix function**. Compute the Jacobian of this function:
 
 ```
    f(a, b) = (a + b) * (a * b)'
 ```
 
-3. Compute the Jacobian of `SHFunctions` which constructs the spherical harmonics of order `n`:
+3. **SphericalHarmonics**. Compute the Jacobian of `SHFunctions` which constructs the spherical harmonics of order `n`:
 <details>
 
 ```
@@ -121,7 +129,7 @@ export SHFunctions
 ```
 </details>
 
-4. Compute the 20x20 Jacobian, ∂dy/∂y, of this function (used in an ODE problem) and compare to a hand optimized Jacobian:
+4. **ODE**. Compute the 20x20 Jacobian, ∂dy/∂y, of this function (used in an ODE problem) and compare to a hand optimized Jacobian. The Jacobian is approximately 25% non-zeros so algorithms that exploit sparsity in the derivative will have an advantage.
 
 <details>
      <summary> Original function </summary>

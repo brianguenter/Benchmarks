@@ -114,3 +114,18 @@ function fd_ODE()
     return @benchmark $fd_exe($float_y, $float_J1)
 end
 export fd_ODE
+
+function fd_ODE_sparse()
+    y = FastDifferentiation.make_variables(:y, 20)
+    dy = Vector{FastDifferentiation.Node}(undef, 20)
+    ODE.f(dy, y, nothing, nothing)
+
+    jac = FastDifferentiation.sparse_jacobian(dy, y)
+    J = similar(jac, Float64)
+
+    fd_exe = FastDifferentiation.make_function(jac, y, in_place=true)
+    float_y = rand(20)
+
+    return @benchmark $fd_exe($float_y, $J)
+end
+export fd_ODE_sparse
