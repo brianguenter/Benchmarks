@@ -126,6 +126,7 @@ export SHFunctions
 <details>
      <summary> Original function </summary>
 ```
+
 const k1 = .35e0
 const k2 = .266e2
 const k3 = .123e5
