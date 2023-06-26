@@ -15,3 +15,9 @@ end
 
 function enzyme_SHFunctions(nterms)
 end
+
+function enzyme_R¹⁰⁰R¹⁰⁰()
+end
+
+function enzyme_ODE()
+end

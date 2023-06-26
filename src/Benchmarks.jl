@@ -66,20 +66,26 @@ export rosenbrock_hessian_benchmarks
 #     fd_rosenbrock_jacobian, enzyme_rosenbrock_gradient, forward_diff_rosenbrock_jacobian, reverse_diff_rosenbrock_jacobian,
 #     fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰)
 
-const rosenbrock_jacobian_benchmarks = (fd_rosenbrock_jacobian, forward_diff_rosenbrock_jacobian, reverse_diff_rosenbrock_jacobian,)
+const rosenbrock_jacobian_benchmarks = (fd_rosenbrock_gradient, forward_diff_rosenbrock_gradient, reverse_diff_rosenbrock_gradient, enzyme_rosenbrock_gradient)
 export rosenbrock_jacobian_benchmarks
 
-const R100_R100_jacobian_benchmarks = (fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰)
+const R100_R100_jacobian_benchmarks = (fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰, enzyme_R¹⁰⁰R¹⁰⁰)
 export R100_R100_jacobian_benchmarks
 
 const SH_Functions_benchmarks = (fd_SHFunctions, forward_diff_SHFunctions, reverse_diff_SHFunctions, enzyme_SHFunctions)
+export SH_Functions_benchmarks
 
 const ODE_benchmarks = (fd_ODE, forward_diff_ODE, reverse_diff_ODE, enzyme_ODE)
+export ODE_benchmarks
 
-function run_benchmarks(benchmarks, nterms)
-    benches = [f(nterms) for f in benchmarks]
+function run_benchmarks(benchmarks, nterms=nothing)
+    if nterms === nothing
+        benches = [f() for f in benchmarks]
+    else
+        benches = [f(nterms) for f in benchmarks]
+    end
     fd_time = minimum(benches[1].times)
-    times = [x !== nothing ? minimum(x.times) / fd_time : -1 for x in benches]
+    times = [x !== nothing ? minimum(x.times) / fd_time : missing for x in benches]
 
     return times
 end

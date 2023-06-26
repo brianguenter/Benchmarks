@@ -1,4 +1,4 @@
-function fd_rosenbrock_jacobian(nterms)
+function fd_rosenbrock_gradient(nterms)
     x = rand(nterms)
     out = similar(x, 1, length(x))
     inp = FastDifferentiation.make_variables(:inp, length(x))
@@ -9,7 +9,7 @@ function fd_rosenbrock_jacobian(nterms)
     fd_func(x, out)
     @benchmark $fd_func($x, $out)
 end
-export fd_rosenbrock_jacobian
+export fd_rosenbrock_gradient
 
 function fd_rosenbrock_hessian(nterms)
     x = rand(nterms)
@@ -35,8 +35,7 @@ function fd_rosenbrock_hessian_sparse(nterms)
 
     fd_func = FastDifferentiation.make_function(hess, inp, in_place=true)
 
-    sparse_array = similar(hess, Float64)
-    sp_out = sparse_array(x)
+    sp_out = similar(hess, Float64)
 
     @benchmark $fd_func($x, $sp_out)
 end
