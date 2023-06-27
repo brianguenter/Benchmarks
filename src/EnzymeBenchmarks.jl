@@ -11,6 +11,17 @@ end
 export enzyme_rosenbrock_gradient
 
 function enzyme_rosenbrock_hessian(nterms)
+    x = rand(nterms)
+    dx = zeros(nterms)
+
+    function hess(x, dx)
+        tmp = Enzyme.autodiff(Enzyme.Reverse, rosenbrock, Enzyme.Active, Enzyme.Active(x))
+        println(tmp)
+        return Enzyme.autodiff(Enzyme.Reverse, rosenbrock, Enzyme.Active, Enzyme.Duplicated(tmp[1], tmp[2]))
+    end
+
+    hess(x, dx)
+
 end
 export enzyme_rosenbrock_hessian
 
