@@ -53,10 +53,13 @@ function ODE_comparison()
     ODE.fjac(float_J2, float_y, nothing, nothing)
     @assert isapprox(float_J1, float_J2, atol=1e-11)
 
-    @benchmark $sparse_fd_exe($float_y, $sparse_J)
-    a = Vector{Any}[]
-    push!(a,)
-    return (@benchmark(ODE.fjac($float_J2, $float_y, nothing, nothing)), @benchmark $fd_exe($float_y, $float_J1), @benchmark $sparse_fd_exe($float_y, $sparse_J))
+
+    a = Any[]
+    push!(a, @benchmark $sparse_fd_exe($float_y, $sparse_J))
+    push!(a, @benchmark $fd_exe($float_y, $float_J1))
+    push!(a, @benchmark(ODE.fjac($float_J2, $float_y, nothing, nothing)))
+    times = map(x -> minimum(x.times), a)
+    return a, map(x -> x / times[1], times)
 end
 export ODE_comparison
 

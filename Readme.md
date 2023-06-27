@@ -1,5 +1,8 @@
 # Benchmark Problems
 
+**These benchmarks are not complete nor are they fully debugged. Results will change over the next few days.**
+
+
 This is a set of benchmarks to compare FastDifferention (**FD**) to several other AD algorithms:
 * ForwardDiff
 * ReverseDiff
@@ -16,7 +19,8 @@ If you spot an error or see a way to make any algorithm more efficient create a 
 To get accurate results for the Enzyme benchmarks you must set the number of threads in Julia to 1. Otherwise Enzyme will generate slower thread safe code.
 
 
-1. **Rosenbrock**. Compute the gradient and the Hessian of the rosenbrock function:
+<details>
+  <summary> Compute the gradient and the Hessian of the Rosenbrock function. The Hessian is extremely sparse so algorithms that can detect sparsity will have an advantage. </summary>
 
 ```
 function rosenbrock(x)
@@ -30,16 +34,19 @@ function rosenbrock(x)
 end
 export rosenbrock
 ```
-The Hessian is extremely sparse so algorithms that can detect sparsity will have an advantage.
+</details>
 
-2. **Matrix function**. Compute the Jacobian of this function:
+
+<details> 
+    <summary> Compute the Jacobian of a small matrix function. </summary>
 
 ```
    f(a, b) = (a + b) * (a * b)'
 ```
+</details>
 
-3. **SphericalHarmonics**. Compute the Jacobian of `SHFunctions` which constructs the spherical harmonics of order `n`:
-
+<details> 
+    <summary> Compute the Jacobian of SHFunctions which constructs the spherical harmonics of order `n`: </summary>
 
 ```
 
@@ -136,9 +143,10 @@ end
 export SHFunctions
 ```
 
+</details>
 
-4. **ODE**. Compute the 20x20 Jacobian, ∂dy/∂y, of this function (used in an ODE problem) and compare to a hand optimized Jacobian. The Jacobian is approximately 25% non-zeros so algorithms that exploit sparsity in the derivative will have an advantage.
-
+<details> 
+    <summary> Compute the 20x20 Jacobian, ∂dy/∂y, of this function (used in an ODE problem) and compare to a hand optimized Jacobian. The Jacobian is approximately 25% non-zeros so algorithms that exploit sparsity in the derivative will have an advantage. </summary>
 
 ```
 
@@ -219,8 +227,10 @@ function f(dy, y, p, t)
 end
 ```
 
+</details>
 
-This is the hand optimized Jacobian, ∂dy/∂y, to compare to. Your Jacobian function should zero out the in place array J which the Jacobian result will be written into:
+<details>
+    <summary> This is the hand optimized Jacobian, ∂dy/∂y, from the ODE function, above. Your Jacobian function should zero out the in place array J which the Jacobian result will be written into, unless you are using sparse arrays. </summary>
 
 ```
 function fjac(J, y, p, t)
@@ -330,4 +340,7 @@ function fjac(J, y, p, t)
     return nothing
 end
 ```
+</details>
 
+## Timings
+@import "Results.md"
