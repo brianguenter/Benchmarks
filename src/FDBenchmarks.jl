@@ -25,7 +25,7 @@ function fd_rosenbrock_hessian(nterms)
 end
 export fd_rosenbrock_hessian
 
-"""hesian of rosenbrock is incredibly sparse. Most time in fd exe is spent setting array elements to zero"""
+
 function fd_rosenbrock_hessian_sparse(nterms)
     x = rand(nterms)
     inp = FastDifferentiation.make_variables(:inp, length(x))
@@ -54,7 +54,7 @@ function fd_reverse_AD_rosenbrock_jacobian(nterms)
 end
 export fd_reverse_AD_rosenbrock_jacobian
 
-"""This FD function is used to compare against both ReverseDiff.jl and Enzyme.jl"""
+
 function fd_R¹⁰⁰R¹⁰⁰(n_size)
     f(a, b) = (a + b) * (a * b)'
 

@@ -1,4 +1,3 @@
-"""This function pairs with `time_fd_rosenbrock`"""
 function forward_diff_rosenbrock_gradient(nterms)
     x = rand(nterms)
 
@@ -100,7 +99,7 @@ function forward_diff_ODE()
     fastest = typemax(Float64)
     local best_trial
 
-  J_forward = similar(y, 20, 20)
+    J_forward = similar(y, 20, 20)
     J_hand = similar(y, 20, 20)
 
     for chunk_size in 1:3:20

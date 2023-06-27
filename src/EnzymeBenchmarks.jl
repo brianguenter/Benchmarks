@@ -1,6 +1,5 @@
 #NOTE: you must set number of threads to 1 or Enzyme will generate slower thread safe code.
 
-"""This function pairs with `time_fd_reverse_diff_example`"""
 function enzyme_rosenbrock_gradient(nterms)
     x = rand(nterms)
     dx = zeros(nterms)
