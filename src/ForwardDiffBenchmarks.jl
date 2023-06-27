@@ -20,14 +20,18 @@ end
 export forward_diff_rosenbrock_gradient
 
 function forward_diff_R¹⁰⁰R¹⁰⁰(nsize)
-    # some objective functions to work with
-    f(a, b) = (a + b) * (a * b)'
+    function f(x)
+        a = view(x, :, 1:nsize)
+        b = view(x, :, nsize+1:2*nsize)
+
+        return (a + b) * (a * b)'
+    end
 
     # some inputs and work buffers to play around with
-    a, b = rand(nsize, nsize), rand(nsize, nsize)
-    inputs = (a, b)
 
-    results = (similar(a, nsize^2, nsize^2), similar(b, nsize^2, nsize^2))
+    inputs = rand(nsize, 2 * nsize)
+
+    results = similar(inputs, nsize^2, 2 * nsize^2)
 
     fastest = typemax(Float64)
     local best_trial
@@ -90,16 +94,19 @@ export forward_diff_SHFunctions
 function forward_diff_ODE()
     def_args!(dy, y) = ODE.f(dy, y, nothing, nothing)
 
+
     y = copy(ODE.u0)
     dy = Vector{Float64}(undef, 20)
     fastest = typemax(Float64)
     local best_trial
-    J_forward = similar(y, 20, 20)
+
+  J_forward = similar(y, 20, 20)
     J_hand = similar(y, 20, 20)
 
     for chunk_size in 1:3:20
         cfg = ForwardDiff.JacobianConfig(def_args!, dy, y, ForwardDiff.Chunk{chunk_size}())
         trial = @benchmark ForwardDiff.jacobian!($J_forward, $def_args!, $dy, $y, $cfg)
+
         if minimum(trial).time < fastest
             best_trial = trial
             fastest = minimum(trial).time

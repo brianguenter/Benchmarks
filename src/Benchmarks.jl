@@ -58,24 +58,21 @@ include("FDBenchmarks.jl")
 include("ReverseDiffBenchmarks.jl")
 include("ForwardDiffBenchmarks.jl")
 
-# const hessian_benchmarks = (fd_rosenbrock_hessian, enzyme_rosenbrock_hessian, forward_diff_rosenbrock_hessian, reverse_diff_rosenbrock_hessian)
-const rosenbrock_hessian_benchmarks = (fd_rosenbrock_hessian_sparse, fd_rosenbrock_hessian, forward_diff_rosenbrock_hessian, reverse_diff_rosenbrock_hessian)
+
+rosenbrock_hessian_benchmarks = (fd_rosenbrock_hessian_sparse, fd_rosenbrock_hessian, forward_diff_rosenbrock_hessian, reverse_diff_rosenbrock_hessian)
 export rosenbrock_hessian_benchmarks
 
-# const jacobian_benchmarks = (
-#     fd_rosenbrock_jacobian, enzyme_rosenbrock_gradient, forward_diff_rosenbrock_jacobian, reverse_diff_rosenbrock_jacobian,
-#     fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰)
-
-const rosenbrock_jacobian_benchmarks = (fd_rosenbrock_gradient, forward_diff_rosenbrock_gradient, reverse_diff_rosenbrock_gradient, enzyme_rosenbrock_gradient)
+rosenbrock_jacobian_benchmarks = (fd_rosenbrock_gradient, forward_diff_rosenbrock_gradient, reverse_diff_rosenbrock_gradient, enzyme_rosenbrock_gradient)
 export rosenbrock_jacobian_benchmarks
 
-const R100_R100_jacobian_benchmarks = (fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰, enzyme_R¹⁰⁰R¹⁰⁰)
+R100_R100_jacobian_benchmarks = (fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰, enzyme_R¹⁰⁰R¹⁰⁰)
 export R100_R100_jacobian_benchmarks
 
-const SH_Functions_benchmarks = (fd_SHFunctions, forward_diff_SHFunctions, #=reverse_diff_SHFunctions,=# enzyme_SHFunctions)
+SH_Functions_benchmarks = (fd_SHFunctions,
+    forward_diff_SHFunctions, reverse_diff_SHFunctions, enzyme_SHFunctions)
 export SH_Functions_benchmarks
 
-const ODE_benchmarks = (fd_ODE_sparse, fd_ODE, forward_diff_ODE, reverse_diff_ODE, enzyme_ODE)
+ODE_benchmarks = (fd_ODE_sparse, fd_ODE, forward_diff_ODE, reverse_diff_ODE, enzyme_ODE)
 export ODE_benchmarks
 
 function run_benchmarks(benchmarks, nterms=nothing)

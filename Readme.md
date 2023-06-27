@@ -1,14 +1,20 @@
 # Benchmark Problems
 
-This is a set of benchmarks to compare 4 AD algorithms:
-* FastDifferentiation
+This is a set of benchmarks to compare FastDifferention (**FD**) to several other AD algorithms:
 * ForwardDiff
 * ReverseDiff
 * Enzyme
 
-The problems test the ability to compute Jacobians, Hessians, and to exploit sparsity in the derivative. The last problem `ODE` also compares the AD algorithms to a hand optimized Jacobian.
+The benchmarks test the speed of gradients, Jacobians, Hessians, and the ability to exploit sparsity in the derivative. The last problem, `ODE`, also compares the AD algorithms to a hand optimized Jacobian.
 
-I have done my best to make the benchmarks fair but some of these algorithms have complicated API's. It is not always easy to figure out the most efficient way to compute the derivative. If you spot an error or see a way to make an algorithm more efficient create a PR and I'll update the code and results.
+When determining which AD algorithm to use keep in mind the limitations of FD. The total operation count of your expression should be less than 10⁵. You may get reasonable performance for expressions as large as 10⁶ operations but expect very long compile times. FD does not support conditionals which involve the differentiation variables (yet). The other algorithms do not have these limitations.
+
+I have done my best to make the benchmarks fair but some of these algorithms have complicated API's. It is not always easy to figure out the most efficient way to compute the derivative. This is one of the benefits of FastDifferentiation: it will automatically figure out the best way to compute a derivative so the API is relatively simple and easy to use.
+
+If you spot an error or see a way to make any algorithm more efficient create a PR and I'll update the code and results. If you would like to add benchmarks for another AD algorithm please implement as many as possible of the benchmarks before submitting your PR.
+
+To get accurate results for the Enzyme benchmarks you must set the number of threads in Julia to 1. Otherwise Enzyme will generate slower thread safe code.
+
 
 1. **Rosenbrock**. Compute the gradient and the Hessian of the rosenbrock function:
 

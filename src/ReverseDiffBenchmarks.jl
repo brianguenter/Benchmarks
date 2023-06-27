@@ -29,8 +29,8 @@ export reverse_diff_R¹⁰⁰R¹⁰⁰
 
 function reverse_diff_rosenbrock_gradient(nsize)
     input = rand(nsize)
-    hcfg = ReverseDiff.JacobianConfig(input)
-    j_tape = ReverseDiff.JacobianTape(rosenbrock, input, hcfg)
+    jcfg = ReverseDiff.JacobianConfig(input)
+    j_tape = ReverseDiff.JacobianTape(rosenbrock, input, jcfg)
 
     compiled_h_tape = ReverseDiff.compile(j_tape)
 
@@ -52,6 +52,11 @@ function reverse_diff_rosenbrock_hessian(nsize)
 end
 export reverse_diff_rosenbrock_hessian
 
+function reverse_diff_SHFunctions(order)
+end
+export reverse_diff_SHFunctions
+
 function reverse_diff_ODE()
+
 end
 export reverse_diff_ODE
