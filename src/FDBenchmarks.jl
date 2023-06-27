@@ -88,11 +88,11 @@ function fd_SHFunctions(nterms)
 
     symb_func = SHFunctions(nterms, x, y, z)
 
-    FastDifferentiation.jacobian(symb_func, [x, y, z])
+    jac = FastDifferentiation.jacobian(symb_func, [x, y, z])
 
     result = Matrix{Float64}(undef, nterms^2, 3)
 
-    func = FastDifferentiation.make_function(symb_func, SVector(x, y, z), in_place=true)
+    func = FastDifferentiation.make_function(jac, SVector(x, y, z), in_place=true)
 
     @benchmark $func(inputs, $result) setup = inputs = rand(3)
 end
