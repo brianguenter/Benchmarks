@@ -9,9 +9,9 @@ The benchmarks test the speed of gradients, Jacobians, Hessians, and the ability
 
 When determining which AD algorithm to use keep in mind the limitations of FD. The total operation count of your expression should be less than 10⁵. You may get reasonable performance for expressions as large as 10⁶ operations but expect very long compile times. FD does not support conditionals which involve the differentiation variables (yet). The other algorithms do not have these limitations.
 
-I have done my best to make the benchmarks fair but some of these algorithms have complicated API's. It is not always easy to figure out the most efficient way to compute the derivative. This is one of the benefits of FastDifferentiation: it will automatically figure out the best way to compute a derivative so the API is relatively simple and easy to use.
+I have done my best to make the benchmarks fair but some of these algorithms have complicated API's; it can be tricky to figure out the most efficient way to compute the derivative. One of the benefits of **FD** is that it willl automatically figure out the best way to compute a derivative. This keeps the **FD** API small and simple.
 
-If you spot an error or see a way to make any algorithm more efficient create a PR and I'll update the code and results. If you would like to add benchmarks for another AD algorithm please implement as many as possible of the benchmarks before submitting your PR.
+If you spot an error or see a way to make any algorithm more efficient create a PR and I'll update the code and benchmark results. If you would like to add benchmarks for another AD algorithm please implement as many as possible of the benchmarks before submitting your PR.
 
 To get accurate results for the Enzyme benchmarks you must set the number of threads in Julia to 1. Otherwise Enzyme will generate slower thread safe code.
 

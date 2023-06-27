@@ -43,12 +43,20 @@ function ODE_comparison()
     float_y = rand(20)
     fd_exe(float_y, float_J1)
 
+    sparse_jac = FastDifferentiation.sparse_jacobian(dy, y)
+    sparse_fd_exe = FastDifferentiation.make_function(sparse_jac, y, in_place=true)
+    sparse_J = similar(sparse_jac, Float64)
+    println("sparse $(sparse_fd_exe(float_y, sparse_J))")
+
     sparse = FastDifferentiation.sparsity(FastDifferentiation.DerivativeGraph(dy))
     @info "sparsity of ODE $sparse"
     ODE.fjac(float_J2, float_y, nothing, nothing)
     @assert isapprox(float_J1, float_J2, atol=1e-11)
 
-    return (@benchmark(ODE.fjac($float_J2, $float_y, nothing, nothing)), @benchmark $fd_exe($float_y, $float_J1))
+    @benchmark $sparse_fd_exe($float_y, $sparse_J)
+    a = Vector{Any}[]
+    push!(a,)
+    return (@benchmark(ODE.fjac($float_J2, $float_y, nothing, nothing)), @benchmark $fd_exe($float_y, $float_J1), @benchmark $sparse_fd_exe($float_y, $sparse_J))
 end
 export ODE_comparison
 
@@ -87,4 +95,13 @@ function run_benchmarks(benchmarks, nterms=nothing)
     return times
 end
 export run_benchmarks
+
+function run_all()
+    all_benches = (rosenbrock_hessian_benchmarks, rosenbrock_jacobian_benchmarks, R100_R100_jacobian_benchmarks, SH_Functions_benchmarks, ODE_benchmarks)
+    parameters = (1000, 1000, 10, 40, nothing)
+
+    return run_benchmarks.(all_benches, parameters)
+end
+export run_all
+
 end #module
