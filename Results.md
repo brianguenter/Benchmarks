@@ -10,7 +10,7 @@ Smaller numbers are better.
 | Rosenbrock Gradient      | [^1]  |1.0       | 530 |237| **0.87** |[^2] |
 | Small Matrix Jacobian   |[^1]     | 1.0 |35|51.5|missing|[^2] |
 | Spherical Harmonics Jacobian        | [^1]           | 1.0    | 37 |missing | missing |[^2] |
-| ODE | 1.0 | 1.8 | 32 | missing | missing | 2.47 |
+| ODE Jacobian | 1.0 | 1.8 | 32 | missing | missing | 2.47 |
 
 
 

@@ -10,7 +10,7 @@ This is a set of benchmarks to compare FastDifferention (**FD**) to several othe
 
 The benchmarks test the speed of gradients, Jacobians, Hessians, and the ability to exploit sparsity in the derivative. The last problem, `ODE`, also compares the AD algorithms to a hand optimized Jacobian.
 
-When determining which AD algorithm to use keep in mind the limitations of FD. The total operation count of your expression should be less than 10⁵. You may get reasonable performance for expressions as large as 10⁶ operations but expect very long compile times. FD does not support conditionals which involve the differentiation variables (yet). The other algorithms do not have these limitations.
+When determining which AD algorithm to use keep in mind the limitations of **FD**. The total operation count of your expression should be less than 10⁵. You may get reasonable performance for expressions as large as 10⁶ operations but expect very long compile times. FD does not support conditionals which involve the differentiation variables (yet). The other algorithms do not have these limitations.
 
 I have done my best to make the benchmarks fair but some of these algorithms have complicated API's; it can be tricky to figure out the most efficient way to compute the derivative. One of the benefits of **FD** is that it willl automatically figure out the best way to compute a derivative. This keeps the **FD** API small and simple.
 
