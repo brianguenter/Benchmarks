@@ -184,15 +184,15 @@ function fjac(J, y, p, t)
     return nothing
 end
 
-end #module
+const u0 = zeros(20)
+u0[2] = 0.2
+u0[4] = 0.04
+u0[7] = 0.1
+u0[8] = 0.3
+u0[9] = 0.01
+u0[17] = 0.007
 
-# u0 = zeros(20)
-# u0[2] = 0.2
-# u0[4] = 0.04
-# u0[7] = 0.1
-# u0[8] = 0.3
-# u0[9] = 0.01
-# u0[17] = 0.007
+end #module
 
 # temp_jac(J)
 # prob = ODEProblem(ODEFunction{true,SciMLBase.FullSpecialize}(f, jac=fjac), u0, (0.0, 60.0))

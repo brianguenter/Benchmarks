@@ -72,7 +72,7 @@ export rosenbrock_jacobian_benchmarks
 const R100_R100_jacobian_benchmarks = (fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰, enzyme_R¹⁰⁰R¹⁰⁰)
 export R100_R100_jacobian_benchmarks
 
-const SH_Functions_benchmarks = (fd_SHFunctions, forward_diff_SHFunctions, reverse_diff_SHFunctions, enzyme_SHFunctions)
+const SH_Functions_benchmarks = (fd_SHFunctions, forward_diff_SHFunctions, #=reverse_diff_SHFunctions,=# enzyme_SHFunctions)
 export SH_Functions_benchmarks
 
 const ODE_benchmarks = (fd_ODE_sparse, fd_ODE, forward_diff_ODE, reverse_diff_ODE, enzyme_ODE)

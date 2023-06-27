@@ -7,7 +7,7 @@ function forward_diff_rosenbrock_gradient(nterms)
     fastest = typemax(Float64)
     local best_trial
 
-    for chunk_size in 1:3:min(nterms, 10)
+    for chunk_size in (1, 4:4:min(nterms, 10)...)
         cfg = ForwardDiff.GradientConfig(rosenbrock, x, ForwardDiff.Chunk{chunk_size}())
         trial = @benchmark ForwardDiff.gradient!($out, $rosenbrock, $x, $cfg)
         if minimum(trial).time < fastest
@@ -32,7 +32,7 @@ function forward_diff_R¹⁰⁰R¹⁰⁰(nsize)
     fastest = typemax(Float64)
     local best_trial
 
-    for chunk_size in 1:3:min(nsize, 10)
+    for chunk_size in 1:3:min(nsize, 20)
         cfg = ForwardDiff.JacobianConfig(f, inputs, ForwardDiff.Chunk{chunk_size}())
         trial = @benchmark ForwardDiff.jacobian!($results, $f, $inputs, $cfg)
         if minimum(trial).time < fastest
@@ -75,7 +75,7 @@ function forward_diff_SHFunctions(nterms)
     local best_trial
     sh_wrapper(x) = SHFunctions(nterms, x[1], x[2], x[3])
 
-    for chunk_size in 1:1:3
+    for chunk_size in 1:3
         cfg = ForwardDiff.JacobianConfig(sh_wrapper, x, ForwardDiff.Chunk{chunk_size}())
         trial = @benchmark ForwardDiff.jacobian($sh_wrapper, $x, $cfg)
         if minimum(trial).time < fastest
@@ -88,21 +88,26 @@ end
 export forward_diff_SHFunctions
 
 function forward_diff_ODE()
-    swap_args!(y, x) = ODE.f(x, y, nothing, nothing)
+    def_args!(dy, y) = ODE.f(dy, y, nothing, nothing)
 
-    y = rand(20)
+    y = copy(ODE.u0)
     dy = Vector{Float64}(undef, 20)
+    fastest = typemax(Float64)
+    local best_trial
+    J_forward = similar(y, 20, 20)
+    J_hand = similar(y, 20, 20)
 
     for chunk_size in 1:3:20
-        cfg = ForwardDiff.JacobianConfig(swap_args!, y, dy, ForwardDiff.Chunk{chunk_size}())
-        trial = @benchmark ForwardDiff.jacobian($swap_args!, $y, $cfg)
+        cfg = ForwardDiff.JacobianConfig(def_args!, dy, y, ForwardDiff.Chunk{chunk_size}())
+        trial = @benchmark ForwardDiff.jacobian!($J_forward, $def_args!, $dy, $y, $cfg)
         if minimum(trial).time < fastest
             best_trial = trial
             fastest = minimum(trial).time
         end
     end
+    ODE.fjac(J_hand, y, nothing, nothing)
+    J_hand ≈ J_forward || error("Inaccurate Jacobian")
 
     return best_trial
 end
 export forward_diff_ODE
-
