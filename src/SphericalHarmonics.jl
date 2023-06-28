@@ -77,6 +77,11 @@ function SHFunctions(max_l, x::T, y::T, z::T) where {T}
     return shfunc
 end
 
+function zygote_SHFunctions(max_l, x::T, y::T, z::T) where {T}
+    return [Y(l, m, x, y, z) for l in 0:max_l-1, m in -l:l]
+end
+export zygote_SHFunctions
+
 function SHFunctions(max_l, x::FastDifferentiation.Node, y::FastDifferentiation.Node, z::FastDifferentiation.Node)
     shfunc = FastDifferentiation.Node[]
 

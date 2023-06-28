@@ -77,6 +77,41 @@ function f(dy, y, p, t)
     dy[20] = -r25 + r24
 end
 
+function zygote_f(y::AbstractVector{T}) where {T}
+    dy = Vector{T}(undef, 20)
+
+    r1 = k1 * y[1]
+    r2 = k2 * y[2] * y[4]
+    r3 = k3 * y[5] * y[2]
+    r4 = k4 * y[7]
+    r5 = k5 * y[7]
+    r6 = k6 * y[7] * y[6]
+    r7 = k7 * y[9]
+    r8 = k8 * y[9] * y[6]
+    r9 = k9 * y[11] * y[2]
+    r10 = k10 * y[11] * y[1]
+    r11 = k11 * y[13]
+    r12 = k12 * y[10] * y[2]
+    r13 = k13 * y[14]
+    r14 = k14 * y[1] * y[6]
+    r15 = k15 * y[3]
+    r16 = k16 * y[4]
+    r17 = k17 * y[4]
+    r18 = k18 * y[16]
+    r19 = k19 * y[16]
+    r20 = k20 * y[17] * y[6]
+    r21 = k21 * y[19]
+    r22 = k22 * y[19]
+    r23 = k23 * y[1] * y[4]
+    r24 = k24 * y[19] * y[1]
+    r25 = k25 * y[20]
+
+    return [
+        -r1 - r10 - r14 - r23 - r24 +
+        r2 + r3 + r9 + r11 + r12 + r22 + r25, -r2 - r3 - r9 - r12 + r1 + r21, -r15 + r1 + r17 + r19 + r22, -r2 - r16 - r17 - r23 + r15, -r3 + r4 + r4 + r6 + r7 + r13 + r20, -r6 - r8 - r14 - r20 + r3 + r18 + r18, -r4 - r5 - r6 + r13, r4 + r5 + r6 + r7, -r7 - r8, -r12 + r7 + r9, -r9 - r10 + r8 + r11, r9, -r11 + r10, -r13 + r12, r14, -r18 - r19 + r16, -r20, r20, -r21 - r22 - r24 + r23 + r25, -r25 + r24
+    ]
+end
+export zygote_f
 
 function fjac(J, y, p, t)
     J .= zero(eltype(J))
