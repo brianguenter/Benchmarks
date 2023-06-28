@@ -15,6 +15,7 @@ using Printf
 # include("ODE.jl")
 include("SphericalHarmonics.jl")
 include("ODE.jl")
+include("FDProduct.jl")
 
 function rosenbrock(x)
     a = one(eltype(x))
