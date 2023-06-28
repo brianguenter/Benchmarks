@@ -4,6 +4,7 @@ import FastDifferentiation
 import ForwardDiff
 using BenchmarkTools
 import ReverseDiff
+import Zygote
 using LinearAlgebra
 import Enzyme
 using Memoize
@@ -68,22 +69,23 @@ include("EnzymeBenchmarks.jl")
 include("FDBenchmarks.jl")
 include("ReverseDiffBenchmarks.jl")
 include("ForwardDiffBenchmarks.jl")
+include("ZygoteBenchmarks.jl")
 
 
-rosenbrock_hessian_benchmarks = (fd_rosenbrock_hessian_sparse, fd_rosenbrock_hessian, forward_diff_rosenbrock_hessian, reverse_diff_rosenbrock_hessian)
+rosenbrock_hessian_benchmarks = (fd_rosenbrock_hessian_sparse, fd_rosenbrock_hessian, forward_diff_rosenbrock_hessian, reverse_diff_rosenbrock_hessian, enzyme_rosenbrock_hessian, zygote_rosenbrock_hessian)
 export rosenbrock_hessian_benchmarks
 
-rosenbrock_jacobian_benchmarks = (fd_rosenbrock_gradient, forward_diff_rosenbrock_gradient, reverse_diff_rosenbrock_gradient, enzyme_rosenbrock_gradient)
+rosenbrock_jacobian_benchmarks = (fd_rosenbrock_gradient, forward_diff_rosenbrock_gradient, reverse_diff_rosenbrock_gradient, enzyme_rosenbrock_gradient, zygote_rosenbrock_gradient)
 export rosenbrock_jacobian_benchmarks
 
-R100_R100_jacobian_benchmarks = (fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰, enzyme_R¹⁰⁰R¹⁰⁰)
+R100_R100_jacobian_benchmarks = (fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰, enzyme_R¹⁰⁰R¹⁰⁰, zygote_R¹⁰⁰R¹⁰⁰)
 export R100_R100_jacobian_benchmarks
 
 SH_Functions_benchmarks = (fd_SHFunctions,
     forward_diff_SHFunctions, reverse_diff_SHFunctions, enzyme_SHFunctions)
 export SH_Functions_benchmarks
 
-ODE_benchmarks = (fd_ODE_sparse, fd_ODE, forward_diff_ODE, reverse_diff_ODE, enzyme_ODE)
+ODE_benchmarks = (fd_ODE_sparse, fd_ODE, forward_diff_ODE, reverse_diff_ODE, enzyme_ODE, zygote_ODE)
 export ODE_benchmarks
 
 function run_benchmarks(benchmarks, nterms=nothing)
