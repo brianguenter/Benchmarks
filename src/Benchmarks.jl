@@ -192,4 +192,49 @@ function write_markdown(benchmark_times, function_names, ODE_times)
 end
 export write_markdown
 
+function compare_operation_count()
+    xvec = FastDifferentiation.make_variables(:x, 1000)
+    FastDifferentiation.@variables x y z
+
+    orig_rosenbrock = FastDifferentiation.number_of_operations([rosenbrock(xvec)])
+    jac_rosenbrock = FastDifferentiation.number_of_operations(FastDifferentiation.jacobian([rosenbrock(xvec)], xvec))
+    hess_rosenbrock = FastDifferentiation.number_of_operations(FastDifferentiation.jacobian([rosenbrock(xvec)], xvec))
+    println("ratio Jacobian of rosenbrock to original $(jac_rosenbrock/orig_rosenbrock)")
+    println("ratio Hessian of rosenbrock to original $(hess_rosenbrock/orig_rosenbrock)")
+
+    orig_SHFunctions = FastDifferentiation.number_of_operations(SHFunctions(20, x, y, z))
+    jac_SH = FastDifferentiation.number_of_operations(FastDifferentiation.jacobian(SHFunctions(20, x, y, z), [x, y, z]))
+
+    println("ratio Jacobian of SHFunctions to original $(jac_SH/orig_SHFunctions)")
+
+    f(a, b) = (a + b) * (a * b)'
+
+    n_size = 10
+
+    av = FastDifferentiation.make_variables(:ain, n_size^2)
+    bv = FastDifferentiation.make_variables(:bin, n_size^2)
+
+    ain = reshape(av, n_size, n_size)
+    bin = reshape(bv, n_size, n_size)
+
+    orig_R_func = vec(FastDifferentiation.Node.(f(ain, bin)))
+    orig_R = FastDifferentiation.number_of_operations(orig_R_func)
+    inputs = vcat(av, bv)
+
+    jac_R = FastDifferentiation.number_of_operations(FastDifferentiation.jacobian(orig_R_func, inputs))
+
+    println("ratio Jacobian of matrix function to original $(jac_R/orig_R)")
+
+    yvec = FastDifferentiation.make_variables(:y, 20)
+    dy = Vector{FastDifferentiation.Node}(undef, 20)
+    ODE.f(dy, yvec, nothing, nothing)
+    orig_ops = FastDifferentiation.number_of_operations(dy)
+    jac_hand = FastDifferentiation.number_of_operations(FastDifferentiation.jacobian(dy, yvec))
+
+    println("ratio Jacobian of hand optimized to original $(jac_hand/orig_ops)")
+
+
+end
+export compare_operation_count
+
 end #module

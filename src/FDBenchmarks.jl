@@ -72,13 +72,11 @@ function fd_R¹⁰⁰R¹⁰⁰(n_size)
 
     orig_func = vec(FastDifferentiation.Node.(f(ain, bin)))
     inputs = vcat(av, bv)
-    # @info "Starting symbolic Jacobian"
-    dgraph = FastDifferentiation.DerivativeGraph(orig_func)
-    # @info "number of operations $(FastDifferentiation.number_of_operations(dgraph))"
+
     jac = FastDifferentiation.jacobian(orig_func, inputs)
-    # @info "Finished symbolic Jcobian, starting make_function"
+
     fd_func = FastDifferentiation.make_function(jac, inputs, in_place=true)
-    # @info "Finshed make_function"
+
 
 
     float_input = rand(2 * n_size^2)

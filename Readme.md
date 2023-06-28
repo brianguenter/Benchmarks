@@ -369,4 +369,12 @@ This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl)
 
 It is worth nothing that both FD sparse and FD dense are faster than the hand optimized Jacobian.
 
+It is also intersting to note the ratio of the number of operations of the Jacobian or Hessian of a function to the number of operations in the original function. For FD these ratios are:
+
+|Ratios | Rosenbrock Jacobian | Rosenbrock Hessian | Spherical harmonics Jacobian | Simple matrix function | hand optimized function |
+|-------|---------------------|--------------------|------------------------------|------------------------|-------------------------|
+|       | 1.13                | 1.13               | 2.4                          |          4.0           |     .59                 |
+
+Contrary to expectation in most of these benchmarks the computation count of the Jacobian or Hessian is a small constant times larger than the computation count of the original function. This is a very small sample of functions but it will be interesting to see if this generalizes to all functions or just functions with special graph structure.
+
 [^notes]: For the FD sparse column, FD sparse was slower than FD dense so times are not listed for this column. For all other columns either the benchmark code crashes or I haven't yet figured out how to make it work correctly and efficiently.
