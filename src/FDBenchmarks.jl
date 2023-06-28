@@ -26,6 +26,11 @@ end
 export fd_rosenbrock_hessian
 
 
+function fd_sparse_placeholder(nterms)
+    return nothing
+end
+export fd_sparse_placeholder
+
 function fd_rosenbrock_hessian_sparse(nterms)
     x = rand(nterms)
     inp = FastDifferentiation.make_variables(:inp, length(x))

@@ -10,6 +10,7 @@ end
 export enzyme_rosenbrock_gradient
 
 function enzyme_rosenbrock_hessian(nterms)
+    return nothing #until figure out how to make this work
     x = rand(nterms)
     dx = zeros(nterms)
 

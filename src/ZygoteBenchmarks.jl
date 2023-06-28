@@ -21,6 +21,7 @@ export zygote_R¹⁰⁰R¹⁰⁰
 
 #has problems with memoize maybe?
 function zygote_SHFunctions(nterms)
+    return nothing #until figure out how to make this work with memoize
     wrap(x, y, z) = zygote_SHFunctions(nterms, x, y, z)
     x = rand()
     y = rand()
