@@ -1,4 +1,5 @@
 module ODE
+using BenchmarkTools
 
 const k1 = .35e0
 const k2 = .266e2
@@ -183,6 +184,17 @@ function fjac(J, y, p, t)
 
     return nothing
 end
+
+no_function(nterms) = nothing
+export no_function
+
+function hand_ODE()
+    y = rand(20)
+    J = rand(20, 20)
+    @benchmark fjac($J, $y, nothing, nothing)
+end
+
+export hand_ODE
 
 const u0 = zeros(20)
 u0[2] = 0.2

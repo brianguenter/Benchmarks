@@ -70,20 +70,20 @@ include("ReverseDiffBenchmarks.jl")
 include("ForwardDiffBenchmarks.jl")
 
 
-rosenbrock_hessian_benchmarks = (fd_rosenbrock_hessian_sparse, fd_rosenbrock_hessian, forward_diff_rosenbrock_hessian, reverse_diff_rosenbrock_hessian)
+rosenbrock_hessian_benchmarks = (fd_rosenbrock_hessian_sparse, fd_rosenbrock_hessian, forward_diff_rosenbrock_hessian, reverse_diff_rosenbrock_hessian, enzyme_rosenbrock_hessian, ODE.no_function)
 export rosenbrock_hessian_benchmarks
 
-rosenbrock_jacobian_benchmarks = (fd_rosenbrock_gradient, forward_diff_rosenbrock_gradient, reverse_diff_rosenbrock_gradient, enzyme_rosenbrock_gradient)
+rosenbrock_jacobian_benchmarks = (fd_rosenbrock_gradient, forward_diff_rosenbrock_gradient, reverse_diff_rosenbrock_gradient, enzyme_rosenbrock_gradient, ODE.no_function)
 export rosenbrock_jacobian_benchmarks
 
-R100_R100_jacobian_benchmarks = (fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰, enzyme_R¹⁰⁰R¹⁰⁰)
+R100_R100_jacobian_benchmarks = (fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰, enzyme_R¹⁰⁰R¹⁰⁰, ODE.no_function)
 export R100_R100_jacobian_benchmarks
 
 SH_Functions_benchmarks = (fd_SHFunctions,
-    forward_diff_SHFunctions, reverse_diff_SHFunctions, enzyme_SHFunctions)
+    forward_diff_SHFunctions, reverse_diff_SHFunctions, enzyme_SHFunctions, ODE.no_function)
 export SH_Functions_benchmarks
 
-ODE_benchmarks = (fd_ODE_sparse, fd_ODE, forward_diff_ODE, reverse_diff_ODE, enzyme_ODE)
+ODE_benchmarks = (fd_ODE_sparse, fd_ODE, forward_diff_ODE, reverse_diff_ODE, enzyme_ODE, ODE.hand_ODE)
 export ODE_benchmarks
 
 function run_benchmarks(benchmarks, nterms=nothing)
