@@ -90,6 +90,11 @@ export SH_Functions_benchmarks
 ODE_benchmarks = (fd_ODE_sparse, fd_ODE, forward_diff_ODE, reverse_diff_ODE, enzyme_ODE, zygote_ODE, ODE.hand_ODE)
 export ODE_benchmarks
 
+all_benchmarks = (rosenbrock_hessian_benchmarks, rosenbrock_jacobian_benchmarks, R100_R100_jacobian_benchmarks, SH_Functions_benchmarks)
+export all_benchmarks
+
+all_names = ("Rosenbrock Hessian", "Rosenbrock gradient", "Simple matrix Jacobian", "Spherical harmonics Jacobian")
+
 function run_benchmarks(benchmarks, nterms=nothing)
     if nterms === nothing
         benches = [f() for f in benchmarks]
@@ -105,15 +110,15 @@ function run_benchmarks(benchmarks, nterms=nothing)
 end
 export run_benchmarks
 
-function run_all()
-    all_benches = (rosenbrock_hessian_benchmarks, rosenbrock_jacobian_benchmarks, R100_R100_jacobian_benchmarks, SH_Functions_benchmarks)
+function run_all(bench_list)
+
     parameters = (1000, 1000, 10, 40)
 
     # for (bench, parameter) in zip(all_benches, parameters)
     #     println("benchmark $bench parameter $parameter\n")
     #     run_benchmarks(bench, parameter)
     # end
-    return run_benchmarks.(all_benches, parameters)
+    return run_benchmarks.(bench_list, parameters)
 end
 export run_all
 
@@ -122,42 +127,51 @@ function write_timing(benchmark)
 
     fmt = "%.2f"
 
-    for bench_times in benchmark
-        _, min_index = findmin(bench_times)
-        one_row *= "\n|"
-        for (i, time) in pairs(bench_times)
-            if time === Inf
-                one_row *= " [^notes] |"
+    _, min_index = findmin(benchmark)
+    for (i, time) in pairs(benchmark)
+        if time === Inf
+            one_row *= " [^notes] |"
+        else
+            ftime = Printf.format(Printf.Format(fmt), time)
+            if i == min_index
+                one_row *= " **$ftime** |"
             else
-                ftime = Printf.format(Printf.Format(fmt), time)
-                if i == min_index
-                    one_row *= " **$ftime** |"
-                else
-                    one_row *= " $ftime |"
-                end
+                one_row *= " $ftime |"
             end
         end
     end
+    one_row *= "\n"
     return one_row
 end
+export write_timing
+
+function test_data()
+    return (collect(1:7), collect(8:14), collect(15:21)), collect(1:7)
+end
+export test_data
 
 function write_markdown()
+    benchmark_times = run_all(all_benchmarks)
+    ODE_times = run_benchmarks(ODE_benchmarks)
+    write_markdown(benchmark_times, all_names, ODE_times)
+end
+
+function write_markdown(benchmark_times, function_names, ODE_times)
     jacobian_header = """# Comparison of FD with other AD algorithms
     | Function | FD sparse | FD dense | ForwardDiff | ReverseDiff | Enzyme | Zygote |
-    |---------|-----------|----------|-------------|-------------|--------|--------|"""
+    |---------|-----------|----------|-------------|-------------|--------|--------|\n"""
 
 
 
-    for benchmark in run_all()
-        jacobian_header *= write_timing(benchmark)
+    for (name, benchmark) in zip(function_names, benchmark_times)
+        jacobian_header *= "| $name |" * write_timing(benchmark)
     end
 
     jacobian_header *= """\n\n ## Comparison of AD algorithms with a hand optimized Jacobian
     | FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme | Zygote | Hand optimized|
-    |-----------|----------|-------------|-------------|--------|--------|---------------|"""
+    |-----------|----------|-------------|-------------|--------|--------|---------------|\n"""
 
-    benchmark = run_benchmarks(ODE_benchmarks)
-    jacobian_header *= write_timing(benchmark)
+    jacobian_header *= write_timing(ODE_times)
     jacobian_header *= "\n\nIt is worth nothing that both FD sparse and FD dense are faster than the hand optimized Jacobian."
 
     jacobian_header *= "\n\n[^notes]: For the FD sparse column, FD sparse was slower than FD dense so times are not listed for this column. For all other columns either the benchmark code crashes or I haven't yet figured out how to make it work correctly.\n"
