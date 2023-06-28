@@ -157,7 +157,12 @@ function write_markdown()
 end
 
 function write_markdown(benchmark_times, function_names, ODE_times)
-    jacobian_header = """# Comparison of FD with other AD algorithms
+    jacobian_header = """## Comparison of FD with other AD algorithms
+
+    These timings are just for evaluating the derivative function. They do not include preprocessing time to generate either the function or auxiliary data structures that make the evaluation more efficient.
+
+    The times in each row are normalized to the shortest time in that row. The fastest algorithm will have a relative time of 1.0 and all other algorithms will have a time ≥ 1.0. Smaller numbers are better.
+
     | Function | FD sparse | FD dense | ForwardDiff | ReverseDiff | Enzyme | Zygote |
     |---------|-----------|----------|-------------|-------------|--------|--------|\n"""
 
@@ -167,14 +172,16 @@ function write_markdown(benchmark_times, function_names, ODE_times)
         jacobian_header *= "| $name |" * write_timing(benchmark)
     end
 
-    jacobian_header *= """\n\n ## Comparison of AD algorithms with a hand optimized Jacobian
+    jacobian_header *= """\n\n ### Comparison of AD algorithms with a hand optimized Jacobian
+    This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl)
+
     | FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme | Zygote | Hand optimized|
     |-----------|----------|-------------|-------------|--------|--------|---------------|\n"""
 
     jacobian_header *= write_timing(ODE_times)
     jacobian_header *= "\n\nIt is worth nothing that both FD sparse and FD dense are faster than the hand optimized Jacobian."
 
-    jacobian_header *= "\n\n[^notes]: For the FD sparse column, FD sparse was slower than FD dense so times are not listed for this column. For all other columns either the benchmark code crashes or I haven't yet figured out how to make it work correctly.\n"
+    jacobian_header *= "\n\n[^notes]: For the FD sparse column, FD sparse was slower than FD dense so times are not listed for this column. For all other columns either the benchmark code crashes or I haven't yet figured out how to make it work correctly and efficiently.\n"
     io = open("Results.md", "w")
     try
         write(io, jacobian_header)

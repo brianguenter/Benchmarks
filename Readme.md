@@ -1,20 +1,21 @@
 # Benchmark Problems
 
-**These benchmarks are not complete nor are they fully debugged. Results will change over the next few days.**
 
 
 This is a set of benchmarks to compare FastDifferention (**FD**) to several other AD algorithms:
 * ForwardDiff
 * ReverseDiff
 * Enzyme
+* Zygote
+
+
+These benchmarks are not complete either because I have not yet figured out how to compute the required derivative with that AD package or because I am not confident that I understand the package well enough to do it in the most efficient way. 
+
+I believe the benchmarks reflect the best way to use each package. However, I am not an expert in any of these packages. The timings for Zygote seem unusually slow so it is possible it is not being used as efficiently as possible. If you are expert in any of these packages please submit a PR to fill in, improve, or correct a benchmark.
 
 The benchmarks test the speed of gradients, Jacobians, Hessians, and the ability to exploit sparsity in the derivative. The last problem, `ODE`, also compares the AD algorithms to a hand optimized Jacobian.
 
 When determining which AD algorithm to use keep in mind the limitations of **FD**. The total operation count of your expression should be less than 10⁵. You may get reasonable performance for expressions as large as 10⁶ operations but expect very long compile times. FD does not support conditionals which involve the differentiation variables (yet). The other algorithms do not have these limitations.
-
-I have done my best to make the benchmarks fair but some of these algorithms have complicated API's; it can be tricky to figure out the most efficient way to compute the derivative. One of the benefits of **FD** is that it willl automatically figure out the best way to compute a derivative. This keeps the **FD** API small and simple.
-
-If you spot an error or see a way to make any algorithm more efficient create a PR and I'll update the code and benchmark results. If you would like to add benchmarks for another AD algorithm please implement as many as possible of the benchmarks before submitting your PR.
 
 To get accurate results for the Enzyme benchmarks you must set the number of threads in Julia to 1. Otherwise Enzyme will generate slower thread safe code.
 
@@ -342,24 +343,30 @@ end
 ```
 </details>
 
-## Timings
-Times are normalized to FD sparse or FD Dense, whichever is smaller. 
-
-Fastest normalized time for a benchmark is shown in **bold**. 
-
-Smaller numbers are better.
-
-| Function                               | FD sparse    | FD dense      | ForwardDiff | ReverseDiff | Enzyme | Hand optimized Jacobian|
-| - | - | - |- |- |- | -  |
-|Rosenbrock Hessian     | 1.0  | 75       | 576,276 | 454,145 | missing | [^2] |
-| Rosenbrock Gradient      | [^1]  |1.0       | 530 |237| **0.87** |[^2] |
-| Small Matrix Jacobian   |[^1]     | 1.0 |35|51.5|missing|[^2] |
-| Spherical Harmonics Jacobian        | [^1]           | 1.0    | 37 |missing | missing |[^2] |
-| ODE Jacobian | 1.0 | 1.8 | 32 | missing | missing | 2.47 |
 
 
+## Comparison of FD with other AD algorithms
 
-It is worth nothing that for the ODE benchmark **FD** sparse and **FD** dense are both faster than the hand optimized Jacobian.
 
-[^1]: No benefit from using FD Sparse
-[^2]: No hand optmized Jacobian for these functions
+These timings are just for evaluating the derivative function. They do not include preprocessing time to generate either the function or auxiliary data structures that make the evaluation more efficient.
+
+The times in each row are normalized to the shortest time in that row. The fastest algorithm will have a relative time of 1.0 and all other algorithms will have a time ≥ 1.0. Smaller numbers are better.
+
+| Function | FD sparse | FD dense | ForwardDiff | ReverseDiff | Enzyme | Zygote |
+|---------|-----------|----------|-------------|-------------|--------|--------|
+| Rosenbrock Hessian | **1.00** | 75.60 | 571669.52 | 423058.61 | [^notes] | 1015635.96 |
+| Rosenbrock gradient | [^notes] | 1.28 | 682.41 | 306.27 | **1.00** | 4726.62 |
+| Simple matrix Jacobian | [^notes] | **1.00** | 42.61 | 54.60 | [^notes] | 130.13 |
+| Spherical harmonics Jacobian | [^notes] | **1.00** | 36.00 | [^notes] | [^notes] | [^notes] |
+
+
+ ### Comparison of AD algorithms with a hand optimized Jacobian
+This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl)
+| FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme | Zygote | Hand optimized|
+|-----------|----------|-------------|-------------|--------|--------|---------------|
+ **1.00** | 1.81 | 29.45 | [^notes] | [^notes] | 556889.67 | 2.47 |
+
+
+It is worth nothing that both FD sparse and FD dense are faster than the hand optimized Jacobian.
+
+[^notes]: For the FD sparse column, FD sparse was slower than FD dense so times are not listed for this column. For all other columns either the benchmark code crashes or I haven't yet figured out how to make it work correctly and efficiently.
