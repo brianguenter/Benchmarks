@@ -241,12 +241,5 @@ u0[17] = 0.007
 
 end #module
 
-# temp_jac(J)
-# prob = ODEProblem(ODEFunction{true,SciMLBase.FullSpecialize}(f, jac=fjac), u0, (0.0, 60.0))
-
-# sol = solve(prob, Rodas5(), abstol=1 / 10^14, reltol=1 / 10^14)
-# test_sol = TestSolution(sol)
-# abstols = 1.0 ./ 10.0 .^ (4:11)
-# reltols = 1.0 ./ 10.0 .^ (1:8);
 
 
