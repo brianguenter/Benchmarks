@@ -193,30 +193,27 @@ function write_markdown(benchmark_times, function_names, ODE_times)
 end
 export write_markdown
 
-function compare_operation_count()
-    xvec = FastDifferentiation.make_variables(:x, 1000)
+function compare_operation_count(ros_size, sh_size, mat_size)
+    xvec = FastDifferentiation.make_variables(:x, ros_size)
     FastDifferentiation.@variables x y z
 
     orig_rosenbrock = FastDifferentiation.number_of_operations([rosenbrock(xvec)])
     jac_rosenbrock = FastDifferentiation.number_of_operations(FastDifferentiation.jacobian([rosenbrock(xvec)], xvec))
-    hess_rosenbrock = FastDifferentiation.number_of_operations(FastDifferentiation.jacobian([rosenbrock(xvec)], xvec))
-    println("ratio Jacobian of rosenbrock to original $(jac_rosenbrock/orig_rosenbrock)")
-    println("ratio Hessian of rosenbrock to original $(hess_rosenbrock/orig_rosenbrock)")
 
-    orig_SHFunctions = FastDifferentiation.number_of_operations(SHFunctions(20, x, y, z))
-    jac_SH = FastDifferentiation.number_of_operations(FastDifferentiation.jacobian(SHFunctions(20, x, y, z), [x, y, z]))
+    println("orign ops $orig_rosenbrock ratio Jacobian of rosenbrock to original $(jac_rosenbrock/orig_rosenbrock)")
 
-    println("ratio Jacobian of SHFunctions to original $(jac_SH/orig_SHFunctions)")
+    orig_SHFunctions = FastDifferentiation.number_of_operations(SHFunctions(sh_size, x, y, z))
+    jac_SH = FastDifferentiation.number_of_operations(FastDifferentiation.jacobian(SHFunctions(sh_size, x, y, z), [x, y, z]))
+
+    println("orig ops $orig_SHFunctions ratio Jacobian of SHFunctions to original $(jac_SH/orig_SHFunctions)")
 
     f(a, b) = (a + b) * (a * b)'
 
-    n_size = 10
+    av = FastDifferentiation.make_variables(:ain, mat_size^2)
+    bv = FastDifferentiation.make_variables(:bin, mat_size^2)
 
-    av = FastDifferentiation.make_variables(:ain, n_size^2)
-    bv = FastDifferentiation.make_variables(:bin, n_size^2)
-
-    ain = reshape(av, n_size, n_size)
-    bin = reshape(bv, n_size, n_size)
+    ain = reshape(av, mat_size, mat_size)
+    bin = reshape(bv, mat_size, mat_size)
 
     orig_R_func = vec(FastDifferentiation.Node.(f(ain, bin)))
     orig_R = FastDifferentiation.number_of_operations(orig_R_func)
@@ -224,7 +221,7 @@ function compare_operation_count()
 
     jac_R = FastDifferentiation.number_of_operations(FastDifferentiation.jacobian(orig_R_func, inputs))
 
-    println("ratio Jacobian of matrix function to original $(jac_R/orig_R)")
+    println("orig ops $orig_R ratio Jacobian of matrix function to original $(jac_R/orig_R)")
 
     yvec = FastDifferentiation.make_variables(:y, 20)
     dy = Vector{FastDifferentiation.Node}(undef, 20)

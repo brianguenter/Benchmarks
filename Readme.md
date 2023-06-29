@@ -354,27 +354,33 @@ The times in each row are normalized to the shortest time in that row. The faste
 
 | Function | FD sparse | FD dense | ForwardDiff | ReverseDiff | Enzyme | Zygote |
 |---------|-----------|----------|-------------|-------------|--------|--------|
-| Rosenbrock Hessian | **1.00** | 75.60 | 571669.52 | 423058.61 | [^notes] | 1015635.96 |
-| Rosenbrock gradient | [^notes] | 1.28 | 682.41 | 306.27 | **1.00** | 4726.62 |
-| Simple matrix Jacobian | [^notes] | **1.00** | 42.61 | 54.60 | [^notes] | 130.13 |
-| Spherical harmonics Jacobian | [^notes] | **1.00** | 36.00 | [^notes] | [^notes] | [^notes] |
+| Rosenbrock Hessian | **1.00** | 75.60 | 571669.52 | 423058.61 | [^a] | 1015635.96 |
+| Rosenbrock gradient | [^a] | 1.28 | 682.41 | 306.27 | **1.00** | 4726.62 |
+| Simple matrix Jacobian | [^a] | **1.00** | 42.61 | 54.60 | [^a] | 130.13 |
+| Spherical harmonics Jacobian | [^a] | **1.00** | 36.00 | [^a] | [^a] | [^a] |
 
 
  ### Comparison of AD algorithms with a hand optimized Jacobian
 This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl)
 | FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme | Zygote | Hand optimized|
 |-----------|----------|-------------|-------------|--------|--------|---------------|
- **1.00** | 1.81 | 29.45 | [^notes] | [^notes] | 556889.67 | 2.47 |
+ **1.00** | 1.81 | 29.45 | [^a] | [^a] | 556889.67 | 2.47 |
 
 
 It is worth nothing that both FD sparse and FD dense are faster than the hand optimized Jacobian.
 
-It is also intersting to note the ratio of the number of operations of the Jacobian or Hessian of a function to the number of operations in the original function. For FD these ratios are:
+It is also intersting to note the ratio of the number of operations of the FD Jacobian of a function to the number of operations in the original function. 
 
-|Ratios | Rosenbrock Jacobian | Rosenbrock Hessian | Spherical harmonics Jacobian | Simple matrix function | hand optimized function |
-|-------|---------------------|--------------------|------------------------------|------------------------|-------------------------|
-|       | 1.13                | 1.13               | 2.4                          |          4.0           |     .59                 |
+Problem sizes in approximately the ratio 1:10:100 were computed for several of the benchmarks. The parameters which give these ratios were: ((10,4,2),(100,11,4),(1000,35,9)) for (Rosenbrock Jacobian, Spherical harmonics Jacobian, Simple matrix ops Jacobian), respectively. 
 
-Contrary to expectation in most of these benchmarks the computation count of the Jacobian or Hessian is a small constant times larger than the computation count of the original function. This is a very small sample of functions but it will be interesting to see if this generalizes to all functions or just functions with special graph structure.
+The ratio (jacobian operations)/(original function operations) stays close to a constant over 2 orders of magnitude of problem size.
 
-[^notes]: For the FD sparse column, FD sparse was slower than FD dense so times are not listed for this column. For all other columns either the benchmark code crashes or I haven't yet figured out how to make it work correctly and efficiently.
+|Relative problem size | Rosenbrock Jacobian | Spherical harmonics Jacobian | Simple matrix ops Jacobian |
+|-------|---------------------|------------------------------|------------------------|
+|  1x     | 1.13                | 2.2                          |          2.6           |
+|  10x     | 1.13                | 2.34                          |          3.5          |
+|  100x     | 1.13                | 2.4                          |          3.8          |
+
+This is a very small sample of functions but it will be interesting to see if this generalizes to all functions or only applies to functions with special graph structure.
+
+[^a]: For the FD sparse column, FD sparse was slower than FD dense so times are not listed for this column. For all other columns either the benchmark code crashes or I haven't yet figured out how to make it work correctly and efficiently.
