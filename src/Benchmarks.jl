@@ -51,12 +51,13 @@ function ODE_comparison()
     sparse_fd_exe = FastDifferentiation.make_function(sparse_jac, y, in_place=true)
     sparse_J = similar(sparse_jac, Float64)
     println("sparse $(sparse_fd_exe(float_y, sparse_J))")
+    sparse_fd_exe(float_y, sparse_J)
 
     sparse = FastDifferentiation.sparsity(FastDifferentiation.DerivativeGraph(dy))
     @info "sparsity of ODE $sparse"
     ODE.fjac(float_J2, float_y, nothing, nothing)
     @assert isapprox(float_J1, float_J2, atol=1e-11)
-
+    @assert isapprox(float_J2, sparse_J)
 
     a = Any[]
     push!(a, @benchmark $sparse_fd_exe($float_y, $sparse_J))
