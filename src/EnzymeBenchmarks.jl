@@ -78,7 +78,7 @@ end
 export enzyme_SHFunctions
 
 function enzyme_R¹⁰⁰R¹⁰⁰(nterms)
-    return nothing #until this works
+    # return nothing #until this works
     function wrapf(v)
         rows, cols = size(v)
         a = view(v, :, 1:(cols÷2))
@@ -90,14 +90,17 @@ function enzyme_R¹⁰⁰R¹⁰⁰(nterms)
     vin = rand(composite_size...)
 
     #This doesn't work locks up terminal
-    Enzyme.jacobian(Reverse, wrapf, vin, Val(prod(composite_size)))
+    Enzyme.jacobian(Enzyme.Reverse, wrapf, vin, Val(prod(composite_size)))
 
     #This doesn't work locks up terminal
-    Enzyme.jacobian(Forward, wrapf, vin, Val(prod(composite_size)))
+    Enzyme.jacobian(Enzyme.Forward, wrapf, vin, Val(prod(composite_size)))
 
 end
 export enzyme_R¹⁰⁰R¹⁰⁰
 
 function enzyme_ODE()
+    nterms = 20
+    y = rand(nterms)
+    @benchmark Enzyme.jacobian(Enzyme.Reverse, ODE.enzyme_f, $y, Val($nterms))
 end
 export enzyme_ODE
