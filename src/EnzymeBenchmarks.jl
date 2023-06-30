@@ -9,23 +9,62 @@ function enzyme_rosenbrock_gradient(nterms)
 end
 export enzyme_rosenbrock_gradient
 
-function enzyme_rosenbrock_hessian(nterms)
+"""example from Enzyme documentation. Doesn't work"""
+function test_enzyme()
+    f(x) = x[1]^2 * x[2]^2
     y = [0.0]
-    x = rand(nterms)
+    x = [2.0, 2.0]
 
-    vdy = NTuple{nterms,Float64}(([0.0] for _ in 1:nterms))
+    vdy = ([0.0], [0.0])
     vdx = ([1.0, 0.0], [0.0, 1.0])
 
-    bx = NTuple{nterms,Float64}(([0.0] for _ in 1:nterms))
+    bx = [0.0, 0.0]
     by = [1.0]
     vdbx = ([0.0, 0.0], [0.0, 0.0])
     vdby = ([0.0], [0.0])
 
     Enzyme.autodiff(
-        Forward,
+        Enzyme.Forward,
+        (x, y) -> Enzyme.autodiff_deferred(Enzyme.Reverse, f, x, y),
+        Enzyme.BatchDuplicated(Enzyme.Duplicated(x, bx), Enzyme.Duplicated.(vdx, vdbx)),
+        Enzyme.BatchDuplicated(Enzyme.Duplicated(y, by), Enzyme.Duplicated.(vdy, vdby)),
+    )
+end
+export test_enzyme
+
+
+function enzyme_rosenbrock_hessian(nterms)
+    y = [0.0]
+    x = rand(nterms)
+
+    vdy = NTuple{nterms,Vector{Float64}}(([0.0] for _ in 1:nterms))
+    vdx = Vector{Vector{Float64}}(undef, nterms)
+    for i in 1:nterms
+        tmp = zeros(nterms)
+        tmp[i] = 1.0
+        vdx[i] = tmp
+    end
+
+    bx = zeros(nterms)
+    by = [1.0]
+    vdbx = Vector{Vector{Float64}}(undef, nterms)
+    for i in 1:nterms
+        tmp = zeros(nterms)
+        tmp[i] = 1.0
+        vdbx[i] = tmp
+    end
+    vdby = NTuple{nterms,Vector{Float64}}(([0.0] for _ in 1:nterms))
+
+    # Enzyme.Duplicated(x, bx)
+    # Enzyme.Duplicated.(vdx, vdbx)
+    # Enzyme.Duplicated(y, by)
+    # Enzyme.Duplicated.(vdy, vdby)
+
+    Enzyme.autodiff(
+        Enzyme.Forward,
         (x, y) -> Enzyme.autodiff_deferred(Reverse, rosenbrock, x, y),
-        BatchDuplicated(Duplicated(x, bx), Duplicated.(vdx, vdbx)),
-        BatchDuplicated(Duplicated(y, by), Duplicated.(vdy, vdby)),
+        Enzyme.BatchDuplicated(Enzyme.Duplicated(x, bx), Enzyme.Duplicated.(vdx, vdbx)),
+        Enzyme.BatchDuplicated(Enzyme.Duplicated(y, by), Enzyme.Duplicated.(vdy, vdby)),
     )
 end
 export enzyme_rosenbrock_hessian
