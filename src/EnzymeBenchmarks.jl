@@ -90,13 +90,14 @@ function enzyme_R¹⁰⁰R¹⁰⁰(nterms)
         return (a + b) * (a * b)'
     end
 
-    vin = rand(10, 20)
+    composite_size = (nterms^2, 2 * nterms^2)
+    vin = rand(composite_size...)
 
     #This doesn't work locks up terminal
-    Enzyme.jacobian(Reverse, wrapf, vin, Val(100))
+    Enzyme.jacobian(Reverse, wrapf, vin, Val(prod(composite_size)))
 
     #This doesn't work locks up terminal
-    Enzyme.jacobian(Forward, wrapf, vin, Val(100))
+    Enzyme.jacobian(Forward, wrapf, vin, Val(prod(composite_size)))
 
 end
 export enzyme_R¹⁰⁰R¹⁰⁰
