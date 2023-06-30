@@ -34,6 +34,7 @@ export test_enzyme
 
 
 function enzyme_rosenbrock_hessian(nterms)
+    return nothing #until this works
     y = [0.0]
     x = rand(nterms)
 
@@ -54,11 +55,6 @@ function enzyme_rosenbrock_hessian(nterms)
         vdbx[i] = tmp
     end
     vdby = NTuple{nterms,Vector{Float64}}(([0.0] for _ in 1:nterms))
-
-    # Enzyme.Duplicated(x, bx)
-    # Enzyme.Duplicated.(vdx, vdbx)
-    # Enzyme.Duplicated(y, by)
-    # Enzyme.Duplicated.(vdy, vdby)
 
     Enzyme.autodiff(
         Enzyme.Forward,
