@@ -71,9 +71,12 @@ function fd_R¹⁰⁰R¹⁰⁰(n_size)
     tmp_mat = Matrix{Float64}(undef, n_size^2, length(av) + length(bv))
 
     orig_func = vec(FastDifferentiation.Node.(f(ain, bin)))
+    # println("orig ops $(FastDifferentiation.number_of_operations(orig_func))")
     inputs = vcat(av, bv)
 
     jac = FastDifferentiation.jacobian(orig_func, inputs)
+    # println("num ops $(FastDifferentiation.number_of_operations(jac))")
+    # println("R100 sparsness $(FastDifferentiation.sparsity(jac))")
 
     fd_func = FastDifferentiation.make_function(jac, inputs, in_place=true)
 

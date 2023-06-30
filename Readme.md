@@ -371,16 +371,17 @@ It is worth nothing that both FD sparse and FD dense are faster than the hand op
 
 It is also intersting to note the ratio of the number of operations of the FD Jacobian of a function to the number of operations in the original function. 
 
-Problem sizes in approximately the ratio 1:10:100 were computed for several of the benchmarks. The parameters which give these ratios were: ((10,4,2),(100,11,4),(1000,35,9)) for (Rosenbrock Jacobian, Spherical harmonics Jacobian, Simple matrix ops Jacobian), respectively. 
+Problem sizes in approximately the ratio 1:10:100 were computed for several of the benchmarks. The parameters which give these ratios were: ((10,4,2),(100,11,4),(1000,35,9),(_,_,20)) for (Rosenbrock Jacobian, Spherical harmonics Jacobian, Simple matrix ops Jacobian), respectively. 
 
-The ratio (jacobian operations)/(original function operations) stays close to a constant over 2 orders of magnitude of problem size.
+The ratio (jacobian operations)/(original function operations) stays close to a constant over 2 orders of magnitude of problem size for Rosenbrock and Spherical harmonics. For the simple matrix ops Jacobian the ratio goes from 2.6 to 6.5 over 3 orders of magnitude of problem size. This is an increase of 2.5x. But the smallest instance is an R⁴->R⁴ function and the largest is R⁴⁰⁰->R⁴⁰⁰ an increase in dimensions of a factor of 100x.
 
 |Relative problem size | Rosenbrock Jacobian | Spherical harmonics Jacobian | Simple matrix ops Jacobian |
 |-------|---------------------|------------------------------|------------------------|
 |  1x     | 1.13                | 2.2                          |          2.6           |
 |  10x     | 1.13                | 2.34                          |          3.5          |
 |  100x     | 1.13                | 2.4                          |          3.8          |
+| 1000x     |                      |                             |          6.5          |
 
-This is a very small sample of functions but it will be interesting to see if this generalizes to all functions or only applies to functions with special graph structure.
+This is a very small sample of functions but it will be interesting to see if this slow growth of the Jacobian with  increasing domain and codomain dimensions generalizes to all functions or only applies to functions with special graph structure.
 
 [^a]: For the FD sparse column, FD sparse was slower than FD dense so times are not listed for this column. For all other columns either the benchmark code crashes or I haven't yet figured out how to make it work correctly and efficiently.
