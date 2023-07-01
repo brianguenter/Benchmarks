@@ -129,10 +129,13 @@ function write_timing(benchmark)
 
     fmt = "%.2f"
 
-    _, min_index = findmin(benchmark)
+    footnotes = String[]
+
+    _, min_index = findmin(x -> x isa Tuple ? Inf : x, benchmark)
     for (i, time) in pairs(benchmark)
-        if time === Inf
-            one_row *= " [^notes] |"
+        if time isa Tuple
+            one_row *= " $(time[1]) |"
+            push!(footnotes, time)
         else
             ftime = Printf.format(Printf.Format(fmt), time)
             if i == min_index
@@ -143,6 +146,11 @@ function write_timing(benchmark)
         end
     end
     one_row *= "\n"
+
+    for note in footnotes
+        one_row *= "$(note[1]): $(note[2]) \n"
+    end
+
     return one_row
 end
 export write_timing

@@ -34,7 +34,7 @@ export test_enzyme
 
 
 function enzyme_rosenbrock_hessian(nterms)
-    return nothing #until this works
+    return ("[5.2]", "Enzyme call doesn't work.")
     y = [0.0]
     x = rand(nterms)
 
@@ -66,7 +66,7 @@ end
 export enzyme_rosenbrock_hessian
 
 function enzyme_SHFunctions(nterms)
-    return nothing #until this works
+    return ("[5.1]", "Enzyme crashes Julia REPL for SHFunctions benchmark.")
 
     f(x) = SHFunctions(nterms, x[1], x[2], x[3])
 
@@ -78,7 +78,7 @@ end
 export enzyme_SHFunctions
 
 function enzyme_R¹⁰⁰R¹⁰⁰(nterms)
-    # return nothing #until this works
+    return ("[^5]", "Enzyme doesn't terminate on R¹⁰⁰R¹⁰⁰ benchmark.")
     function wrapf(v)
         rows, cols = size(v)
         a = view(v, :, 1:(cols÷2))

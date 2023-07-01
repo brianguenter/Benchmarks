@@ -27,7 +27,7 @@ export fd_rosenbrock_hessian
 
 
 function fd_sparse_placeholder(nterms)
-    return nothing
+    return ("[^1]", "[^1]: **FD** sparse was slower than **FD** dense so results are only show for dense.")
 end
 export fd_sparse_placeholder
 
