@@ -100,6 +100,6 @@ export enzyme_R¹⁰⁰R¹⁰⁰
 function enzyme_ODE()
     nterms = 20
     y = rand(nterms)
-    @benchmark Enzyme.jacobian(Enzyme.Reverse, ODE.enzyme_f, $y, Val($nterms))
+    @benchmark Enzyme.jacobian(Enzyme.Forward, ODE.enzyme_f, $y, Val($nterms))
 end
 export enzyme_ODE
