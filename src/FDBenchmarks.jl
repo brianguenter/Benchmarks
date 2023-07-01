@@ -130,9 +130,17 @@ function fd_ODE_sparse()
 
     jac = FastDifferentiation.sparse_jacobian(dy, y)
     J = similar(jac, Float64)
+    Jh = rand(20, 20)
 
     fd_exe = FastDifferentiation.make_function(jac, y, in_place=true)
     float_y = rand(20)
+
+    fd_exe(float_y, J)
+    ODE.fjac(Jh, float_y, nothing, nothing)
+    # println("J $(collect(J))")
+    # println("Jh $Jh")
+
+    @assert isapprox(Jh, J)
 
     return @benchmark $fd_exe($float_y, $J)
 end
