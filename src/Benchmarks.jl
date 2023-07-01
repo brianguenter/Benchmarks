@@ -183,7 +183,7 @@ function write_markdown(benchmark_times, function_names, ODE_times)
     end
 
     jacobian_header *= """\n\n ### Comparison of AD algorithms with a hand optimized Jacobian
-    This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl)
+    This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl). As before timings are relative to the fastest time.
 
     | FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme | Zygote | Hand optimized|
     |-----------|----------|-------------|-------------|--------|--------|---------------|\n"""

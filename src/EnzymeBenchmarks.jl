@@ -34,7 +34,7 @@ export test_enzyme
 
 
 function enzyme_rosenbrock_hessian(nterms)
-    return ("[5.2]", "Enzyme call doesn't work.")
+    # return ("[5.2]", "Enzyme call doesn't work.")
     y = [0.0]
     x = rand(nterms)
 
@@ -51,7 +51,6 @@ function enzyme_rosenbrock_hessian(nterms)
     vdbx = Vector{Vector{Float64}}(undef, nterms)
     for i in 1:nterms
         tmp = zeros(nterms)
-        tmp[i] = 1.0
         vdbx[i] = tmp
     end
     vdby = NTuple{nterms,Vector{Float64}}(([0.0] for _ in 1:nterms))

@@ -74,6 +74,8 @@ function fd_R¹⁰⁰R¹⁰⁰(n_size)
     # println("orig ops $(FastDifferentiation.number_of_operations(orig_func))")
     inputs = vcat(av, bv)
 
+    @benchmark FastDifferentiation.jacobian(orig_func, inputs)
+
     jac = FastDifferentiation.jacobian(orig_func, inputs)
     # println("num ops $(FastDifferentiation.number_of_operations(jac))")
     # println("R100 sparsness $(FastDifferentiation.sparsity(jac))")
