@@ -10,6 +10,7 @@ import Enzyme
 using Memoize
 using StaticArrays
 using Printf
+using SparseArrays
 
 
 # include("ODE.jl")
@@ -82,18 +83,18 @@ export rosenbrock_hessian_benchmarks
 rosenbrock_jacobian_benchmarks = (fd_sparse_placeholder, fd_rosenbrock_gradient, forward_diff_rosenbrock_gradient, reverse_diff_rosenbrock_gradient, enzyme_rosenbrock_gradient, zygote_rosenbrock_gradient)
 export rosenbrock_jacobian_benchmarks
 
-R100_R100_jacobian_benchmarks = (fd_sparse_placeholder, fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰, enzyme_R¹⁰⁰R¹⁰⁰, zygote_R¹⁰⁰R¹⁰⁰)
-export R100_R100_jacobian_benchmarks
+R100_R100_JACOBIAN_BENCHMARKS = (fd_sparse_placeholder, fd_R¹⁰⁰R¹⁰⁰, forward_diff_R¹⁰⁰R¹⁰⁰, reverse_diff_R¹⁰⁰R¹⁰⁰, enzyme_R¹⁰⁰R¹⁰⁰, zygote_R¹⁰⁰R¹⁰⁰)
+export R100_R100_JACOBIAN_BENCHMARKS
 
-SH_Functions_benchmarks = (fd_sparse_placeholder, fd_SHFunctions,
+SH_FUNCTIONS_BENCHMARKS = (fd_sparse_placeholder, fd_SHFunctions,
     forward_diff_SHFunctions, reverse_diff_SHFunctions, enzyme_SHFunctions, zygote_SHFunctions)
-export SH_Functions_benchmarks
+export SH_FUNCTIONS_BENCHMARKS
 
-ODE_benchmarks = (fd_ODE_sparse, fd_ODE, forward_diff_ODE, reverse_diff_ODE, enzyme_ODE, zygote_ODE, ODE.hand_ODE)
-export ODE_benchmarks
+ODE_BENCHMARKS = (fd_ODE_sparse, fd_ODE, forward_diff_ODE, reverse_diff_ODE, enzyme_ODE, enzyme_tuple_ODE, zygote_ODE, ODE.hand_ODE)
+export ODE_BENCHMARKS
 
-all_benchmarks = (rosenbrock_hessian_benchmarks, rosenbrock_jacobian_benchmarks, R100_R100_jacobian_benchmarks, SH_Functions_benchmarks)
-export all_benchmarks
+ALL_BENCHMARKS = (rosenbrock_hessian_benchmarks, rosenbrock_jacobian_benchmarks, R100_R100_JACOBIAN_BENCHMARKS, SH_FUNCTIONS_BENCHMARKS)
+export ALL_BENCHMARKS
 
 all_names = ("Rosenbrock Hessian", "Rosenbrock gradient", "Simple matrix Jacobian", "Spherical harmonics Jacobian")
 
@@ -104,9 +105,13 @@ function run_benchmarks(benchmarks, nterms=nothing)
         benches = [f(nterms) for f in benchmarks]
     end
 
-    times = [x !== nothing ? minimum(x.times) : Inf for x in benches]
-    min_time, _ = findmin(times)
-    times /= min_time
+    if isa(benches, Tuple)
+        return benches
+    else
+        times = [x !== nothing ? minimum(x.times) : Inf for x in benches]
+        min_time, _ = findmin(times)
+        times /= min_time
+    end
 
     return times
 end
@@ -161,8 +166,8 @@ end
 export test_data
 
 function write_markdown()
-    benchmark_times = run_all(all_benchmarks)
-    ODE_times = run_benchmarks(ODE_benchmarks)
+    benchmark_times = run_all(ALL_BENCHMARKS)
+    ODE_times = run_benchmarks(ODE_BENCHMARKS)
     write_markdown(benchmark_times, all_names, ODE_times)
 end
 

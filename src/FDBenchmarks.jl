@@ -108,14 +108,24 @@ export fd_SHFunctions
 
 
 function fd_ODE()
+    #generate function to be differentiated and store in vector f_y
     y = FastDifferentiation.make_variables(:y, 20)
-    dy = Vector{FastDifferentiation.Node}(undef, 20)
-    ODE.f(dy, y, nothing, nothing)
+    f_y = Vector{FastDifferentiation.Node}(undef, 20)
+    ODE.f(f_y, y, nothing, nothing)
 
-    jac = FastDifferentiation.jacobian(dy, y)
-    J = Matrix{FastDifferentiation.Node}(undef, 20, 20)
 
+    ### FD code to compute symbolic Jacobian and make executable
+
+    #compute symbolic derivative
+    jac = FastDifferentiation.jacobian(f_y, y)
+
+    #compile to executable
     fd_exe = FastDifferentiation.make_function(jac, y, in_place=true)
+
+    ### End FD code
+
+
+    #make input vector and matrix to hold result
     float_J1 = Matrix{Float64}(undef, 20, 20)
     float_y = rand(20)
 
@@ -124,24 +134,34 @@ end
 export fd_ODE
 
 function fd_ODE_sparse()
+    #generate function to be differentiated and store in vector f_y
     y = FastDifferentiation.make_variables(:y, 20)
-    dy = Vector{FastDifferentiation.Node}(undef, 20)
-    ODE.f(dy, y, nothing, nothing)
+    f_y = Vector{FastDifferentiation.Node}(undef, 20)
+    ODE.f(f_y, y, nothing, nothing)
 
-    jac = FastDifferentiation.sparse_jacobian(dy, y)
+
+    ### FD code to compute symbolic Jacobian and make executable
+
+    #compute symbolic derivative
+    jac = FastDifferentiation.sparse_jacobian(f_y, y)
+
+    #compile to executable
+    fd_exe = FastDifferentiation.make_function(jac, y, in_place=true)
+
+    ### End FD code
+
+
+    #sanity check to make sure derivative is correct
+    float_y = rand(20)
     J = similar(jac, Float64)
     Jh = rand(20, 20)
 
-    fd_exe = FastDifferentiation.make_function(jac, y, in_place=true)
-    float_y = rand(20)
-
     fd_exe(float_y, J)
     ODE.fjac(Jh, float_y, nothing, nothing)
-    # println("J $(collect(J))")
-    # println("Jh $Jh")
 
     @assert isapprox(Jh, J)
 
+    #run benchmark
     return @benchmark $fd_exe($float_y, $J)
 end
 export fd_ODE_sparse
