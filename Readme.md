@@ -368,23 +368,6 @@ Environment:
   JULIA_NUM_THREADS = 1
 ```
 
-Package info:
-```julia
-(Benchmarks) pkg> st
-Project Benchmarks v0.1.0
-Status `C:\Users\seatt\source\Benchmarks\Project.toml`
-  [6e4b80f9] BenchmarkTools v1.3.2
-  [7da242da] Enzyme v0.11.3 `https://github.com/EnzymeAD/Enzyme.jl.git#main`
-  [eb9bf01b] FastDifferentiation v0.2.6 `../FastDifferentiation.jl#main`
-  [f6369f11] ForwardDiff v0.10.35
-  [c03570c3] Memoize v0.4.4
-  [37e2e3b7] ReverseDiff v1.14.6
-⌃ [90137ffa] StaticArrays v1.5.26
-  [e88e6eb3] Zygote v0.6.62
-  [37e2e46d] LinearAlgebra
-  [de0858da] Printf
-  [2f01184e] SparseArrays
-  ```
 
 | Function | FD sparse | FD dense | ForwardDiff | ReverseDiff | Enzyme | Zygote |
 |---------|-----------|----------|-------------|-------------|--------|--------|
