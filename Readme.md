@@ -9,13 +9,10 @@ This is a set of benchmarks to compare FastDifferention (**FD**) to several othe
 * Zygote
 
 
-These benchmarks are not complete either because I have not yet figured out how to compute the required derivative with that AD package or because I am not confident that I understand the package well enough to do it in the most efficient way. 
-
-I believe the benchmarks reflect the best way to use each package. However, I am not an expert in any of these packages. The timings for Zygote seem unusually slow so it is possible it is not being used as efficiently as possible. If you are expert in any of these packages please submit a PR to fill in, improve, or correct a benchmark.
 
 The benchmarks test the speed of gradients, Jacobians, Hessians, and the ability to exploit sparsity in the derivative. The last problem, `ODE`, also compares the AD algorithms to a hand optimized Jacobian.
 
-When determining which AD algorithm to use keep in mind the limitations of **FD**. The total operation count of your expression should be less than 10⁵. You may get reasonable performance for expressions as large as 10⁶ operations but expect very long compile times. FD does not support conditionals which involve the differentiation variables (yet). The other algorithms do not have these limitations.
+When determining which AD algorithm to use keep in mind the limitations of **FD**. The total operation count of your expression should be less than 10⁵. You may get reasonable performance for expressions as large as 10⁶ operations but expect long compile times. FD does not support conditionals which involve the differentiation variables (yet). The other algorithms do not have these limitations.
 
 To get accurate results for the Enzyme benchmarks you must set the number of threads in Julia to 1. Otherwise Enzyme will generate slower thread safe code.
 
@@ -345,12 +342,31 @@ end
 
 
 
-## Comparison of FD with other AD algorithms
+## Results
+Finding the perfect parameter settings and calling sequences for AD packages can be tricky. Getting the best results may require deep knowledge of the package, and much experimentation. If you are not an expert it is hard to be certain you are getting maximum performance. I am expert only in **FD** so I am grateful to Yinbgo Ma and Billy Moses for their valuable advice (and code) for the ForwardDiff and Enzyme benchmarks. 
 
+Writing and optimizing benchmarks for such a diverse set of AD algorithms has been surprisingly time consuming. The work is not complete because I haven't yet figured out how to make working benchmarks for all the packages. Submit a PR if you can make a benchmark functional or faster and I will update this Readme file.
 
-These timings are just for evaluating the derivative function. They do not include preprocessing time to generate either the function or auxiliary data structures that make the evaluation more efficient.
+These timings are just for evaluating the derivative function. They do not include preprocessing time that make the evaluation more efficient.
 
 The times in each row are normalized to the shortest time in that row. The fastest algorithm will have a relative time of 1.0 and all other algorithms will have a time ≥ 1.0. Smaller numbers are better.
+
+System information for timing:
+```julia
+julia> versioninfo()
+Julia Version 1.9.1
+Commit 147bdf428c (2023-06-07 08:27 UTC)
+Platform Info:
+  OS: Windows (x86_64-w64-mingw32)
+  CPU: 32 × AMD Ryzen 9 7950X 16-Core Processor
+  WORD_SIZE: 64
+  LIBM: libopenlibm
+  LLVM: libLLVM-14.0.6 (ORCJIT, znver3)
+  Threads: 1 on 32 virtual cores
+Environment:
+  JULIA_EDITOR = code.cmd
+  JULIA_NUM_THREADS = 1
+```
 
 | Function | FD sparse | FD dense | ForwardDiff | ReverseDiff | Enzyme | Zygote |
 |---------|-----------|----------|-------------|-------------|--------|--------|
@@ -360,20 +376,31 @@ The times in each row are normalized to the shortest time in that row. The faste
 | Spherical harmonics Jacobian | [^a] | **1.00** | 36.00 | [^a] | [^a] | [^a] |
 
 
- ### Comparison of AD algorithms with a hand optimized Jacobian
-This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl)
-| FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme | Zygote | Hand optimized|
-|-----------|----------|-------------|-------------|--------|--------|---------------|
- **1.00** | 1.81 | 29.45 | [^a] | [^a] | 556889.67 | 2.47 |
+ ### Comparison of AD algorithms to a hand optimized Jacobian
+This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl) for a function used in the solution of an ODE. This benchmark was contributed by Yingbo Ma. Again the results are normalized to the run time of the fastest algorithm, which will have a relative time of 1.0. All other times will be ≥ 1.0. Smaller numbers are better.
+
+All of the benchmarks except Enzyme accept a vector input and either return a matrix or modify one in place. This is a requirement to make the ODE code compatible with the particular ODE solver that is calling the ODE function. 
+
+However the vector/matrix version of the Enzyme benchmark is extremely slow because Enzyme does not yet apply the most sophisticated optimizations for these inputs/outputs. Future versions of Enzyme may address this problem.
+
+Two versions of the Enzyme benchmark were written, one of which is vector/matrix compatible, the other of which takes a tuple input and returns a tuple(tuples). The latter optimizes better but is not compatible with the ODE solver. 
+
+If compatibility with other code that requires vector/matrix input-output is an issue then you should look at the timing for Enzyme(array). If compatibility is not an issue look at the timing for Enzyme(tuple).
 
 
-It is worth nothing that both FD sparse and FD dense are faster than the hand optimized Jacobian.
+| FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme (tuple) | Enzyme (array) | Zygote | Hand optimized|
+|-----------|----------|-------------|-------------|----------------|----------------|--------|---------------|
+ **1.00** | 1.81 | 29.45 | [^a] | 4.8 | 225 | 556889.67 | 2.47 |
 
-It is also intersting to note the ratio of the number of operations of the FD Jacobian of a function to the number of operations in the original function. 
 
-Problem sizes in approximately the ratio 1\:10 \:100 \:1000 were computed for several of the benchmarks. The parameters which give these ratios were: ((10,4,2),(100,11,4),(1000,35,9),(\_,\_,20)) for (Rosenbrock Jacobian, Spherical harmonics Jacobian, Simple matrix ops Jacobian), respectively. 
+It is worth nothing that both **FD** sparse and **FD** dense are faster than the hand optimized Jacobian.
 
-The ratio (jacobian operations)/(original function operations) stays close to a constant over 2 orders of magnitude of problem size for Rosenbrock and Spherical harmonics. For the simple matrix ops Jacobian the ratio goes from 2.6 to 6.5 over 3 orders of magnitude of problem size. This is an increase of 2.5x. But the smallest instance is an R⁸->R⁴ function and the largest is R⁸⁰⁰->R⁴⁰⁰ an increase in dimensions of a factor of 100x.
+## Rate of growth of Jacobian
+It is also intersting to note the ratio of the number of operations of the **FD** Jacobian of a function to the number of operations in the original function. 
+
+Problem sizes in approximately the ratio 1 \:10 \: 100 \: 1000 were computed for several of the benchmarks.
+
+The ratio (jacobian operations)/(original function operations) stays close to a constant over 2 orders of magnitude of problem size for Rosenbrock and Spherical harmonics. For the simple matrix ops Jacobian the ratio goes from 2.6 to 6.5 over 3 orders of magnitude of problem size. The ratio is growing far more slowly than the domain and codomain dimensions of the problem: the smallest instance is an R⁸->R⁴ function and the largest is R⁸⁰⁰->R⁴⁰⁰ an increase in both domain and codomain dimensions of 100x.
 
 |Relative problem size | Rosenbrock Jacobian | Spherical harmonics Jacobian | Simple matrix ops Jacobian |
 |-------|---------------------|------------------------------|------------------------|
@@ -382,6 +409,6 @@ The ratio (jacobian operations)/(original function operations) stays close to a 
 |  100x     | 1.13                | 2.4                          |          3.8          |
 | 1000x     |                      |                             |          6.5          |
 
-This is a very small sample of functions but it will be interesting to see if this slow growth of the Jacobian with  increasing domain and codomain dimensions generalizes to all functions or only applies to functions with special graph structure.
+This is a very small sample of functions but it will be interesting to see if this slow growth of the Jacobian with increasing domain and codomain dimensions generalizes to all functions or only applies to functions with special graph structure.
 
-[^a]: For the FD sparse column, FD sparse was slower than FD dense so times are not listed for this column. For all other columns either the benchmark code crashes or I haven't yet figured out how to make it work correctly and efficiently.
+[^a]: For the FD sparse column, FD sparse was slower than FD dense so times are not listed for this column. For all other columns I haven't yet figured out how to make it work correctly and efficiently.
