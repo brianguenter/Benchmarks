@@ -395,7 +395,7 @@ If compatibility with other code that requires vector/matrix input-output is an 
 
 It is worth nothing that both **FD** sparse and **FD** dense are faster than the hand optimized Jacobian.
 
-## Rate of growth of Jacobian
+### Rate of growth of Jacobian
 It is also intersting to note the ratio of the number of operations of the **FD** Jacobian of a function to the number of operations in the original function. 
 
 Problem sizes in approximately the ratio 1 \:10 \: 100 \: 1000 were computed for several of the benchmarks.
