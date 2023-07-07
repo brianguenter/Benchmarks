@@ -380,9 +380,9 @@ Environment:
  ### Comparison of AD algorithms to a hand optimized Jacobian
 This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl) for a function used in the solution of an ODE. This benchmark was contributed by Yingbo Ma. Again the results are normalized to the run time of the fastest algorithm, which will have a relative time of 1.0. All other times will be ≥ 1.0. Smaller numbers are better.
 
-These benchmarks `FD Sparse`, `FD Dense`, `Forward Diff`, `Reverse Diff`, `Enzyme (array)`, `Zygote` accept a vector input and either return a matrix or modify one in place. This is a requirement to make the ODE code compatible with the particular ODE solver that is calling the ODE function. 
+All of the benchmarks except`Enzyme (tuple)` accept a vector input and either return a matrix or modify one in place. This is a requirement to make the ODE code compatible with the particular ODE solver that is calling the ODE function. 
 
-However the vector/matrix version of the Enzyme benchmark is extremely slow because Enzyme does not yet apply the most sophisticated optimizations for these inputs/outputs. Future versions of Enzyme may address this problem.
+However the vector/matrix version of the Enzyme benchmark, `Enzyme (array)` is extremely slow because Enzyme does not yet apply the most sophisticated optimizations for these inputs/outputs. Future versions of Enzyme may address this problem.
 
 A second version of the Enzyme benchmark, `Enzyme (tuple)` was written which takes a tuple input and returns a tuple(tuples). This uses a version of Enzyme that is not yet, as of 7-7-2023, registered on the Julia registry. This  optimizes better but is not compatible with the ODE solver. 
 
