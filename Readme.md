@@ -16,6 +16,7 @@ When determining which AD algorithm to use keep in mind the limitations of **FD*
 
 To get accurate results for the Enzyme benchmarks you must set the number of threads in Julia to 1. Otherwise Enzyme will generate slower thread safe code.
 
+## List of Benchmarks
 
 <details>
   <summary> Compute the gradient and the Hessian of the Rosenbrock function. The Hessian is extremely sparse so algorithms that can detect sparsity will have an advantage. </summary>
