@@ -11,6 +11,7 @@ using Memoize
 using StaticArrays
 using Printf
 using SparseArrays
+using InteractiveUtils
 
 
 # include("ODE.jl")
@@ -99,21 +100,17 @@ export ALL_BENCHMARKS
 all_names = ("Rosenbrock Hessian", "Rosenbrock gradient", "Simple matrix Jacobian", "Spherical harmonics Jacobian")
 
 function run_benchmarks(benchmarks, nterms=nothing)
+    @info "Running benchmark $benchmarks"
     if nterms === nothing
         benches = [f() for f in benchmarks]
     else
         benches = [f(nterms) for f in benchmarks]
     end
 
-    if isa(benches, Tuple)
-        return benches
-    else
-        times = [x !== nothing ? minimum(x.times) : Inf for x in benches]
-        min_time, _ = findmin(times)
-        times /= min_time
-    end
+    times = [x isa Tuple ? x : minimum(x.times) for x in benches]
+    min_time, _ = findmin(x -> x isa Tuple ? Inf : x, times)
 
-    return times
+    return map(x -> x isa Tuple ? x : x / min_time, times)
 end
 export run_benchmarks
 
@@ -140,7 +137,9 @@ function write_timing(benchmark)
     for (i, time) in pairs(benchmark)
         if time isa Tuple
             one_row *= " $(time[1]) |"
-            push!(footnotes, time)
+            println("before append $(time[2])")
+            push!(footnotes, time[2])
+            println("after append")
         else
             ftime = Printf.format(Printf.Format(fmt), time)
             if i == min_index
@@ -152,11 +151,9 @@ function write_timing(benchmark)
     end
     one_row *= "\n"
 
-    for note in footnotes
-        one_row *= "$(note[1]): $(note[2]) \n"
-    end
 
-    return one_row
+
+    return one_row, footnotes
 end
 export write_timing
 
@@ -172,35 +169,67 @@ function write_markdown()
 end
 
 function write_markdown(benchmark_times, function_names, ODE_times)
-    jacobian_header = """## Comparison of FD with other AD algorithms
+    io = open("Results.md", "w")
+    try
+        write(
+            io,
+            """### Results
 
-    These timings are just for evaluating the derivative function. They do not include preprocessing time to generate either the function or auxiliary data structures that make the evaluation more efficient.
+    These timings are just for evaluating the derivative function. They do not include preprocessing time required to generate and compile the function nor any time needed to generate auxiliary data structures that make the evaluation more efficient.
 
     The times in each row are normalized to the shortest time in that row. The fastest algorithm will have a relative time of 1.0 and all other algorithms will have a time ≥ 1.0. Smaller numbers are better.
 
-    | Function | FD sparse | FD dense | ForwardDiff | ReverseDiff | Enzyme | Zygote |
-    |---------|-----------|----------|-------------|-------------|--------|--------|\n"""
+    All benchmarks run on this system:
+    """
+        )
+
+        write(io, "```julia \n")
+        InteractiveUtils.versioninfo(io)
+        write(io, "``` \n")
+
+        write(
+            io,
+            """
+
+| Function | FD sparse | FD dense | ForwardDiff | ReverseDiff | Enzyme | Zygote |
+|---------|-----------|----------|-------------|-------------|--------|--------|\n"""
+        )
 
 
 
-    for (name, benchmark) in zip(function_names, benchmark_times)
-        jacobian_header *= "| $name |" * write_timing(benchmark)
-    end
+        footnotes = String[]
+        for (name, benchmark) in zip(function_names, benchmark_times)
+            println("Benchmark $name $benchmark")
+            entry, footnote = write_timing(benchmark)
+            append!(footnotes, footnote)
+            println("footnote $footnote")
+            println("writing entry $entry")
+            write(io, "| $name |" * entry)
+        end
 
-    jacobian_header *= """\n\n ### Comparison of AD algorithms with a hand optimized Jacobian
-    This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl). As before timings are relative to the fastest time.
+        for note in footnotes
+            println("writing footnote $note")
+            write(io, note * "\n")
+        end
+        write(
+            io,
+            """\n\n ### Comparison to hand optimized Jacobian.
+   This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl). As before timings are relative to the fastest time.
+   Enzyme (array) is written to accept a vector input and return a matrix output to be compatible with the calling convention for the ODE function. This is very slow because Enzyme does not yet do full optimizations on the these input/output types. Enzyme (tuple) is written to accept a tuple input and returns tuple(tuples). This is much faster but not compatible with the calling convetions of the ODE function. This version uses features not avaialable in the registered version of Enzyme (as of 7-9-2023). You will need to `] add Enzyme#main` instead of using the registered version.
 
-    | FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme | Zygote | Hand optimized|
-    |-----------|----------|-------------|-------------|--------|--------|---------------|\n"""
+   | FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme (array) | Enzyme (tuple) | Zygote | Hand optimized|
+   |-----------|----------|-------------|-------------|----------------|----------------|--------|---------------|\n"""
+        )
 
-    jacobian_header *= write_timing(ODE_times)
-    jacobian_header *= "\n\nIt is worth nothing that both FD sparse and FD dense are faster than the hand optimized Jacobian."
+        row, footnotes = write_timing(ODE_times)
+        write(io, row)
+        write(io, "\n\nIt is worth nothing that both FD sparse and FD dense are faster than the hand optimized Jacobian.\n")
 
-    jacobian_header *= "\n\n[^notes]: For the FD sparse column, FD sparse was slower than FD dense so times are not listed for this column. For all other columns either the benchmark code crashes or I haven't yet figured out how to make it work correctly and efficiently.\n"
-    io = open("Results.md", "w")
-    try
-        write(io, jacobian_header)
-    catch
+        for note in footnotes
+            write(io, note * "\n")
+        end
+    catch e
+        @info "$e error writing file"
     finally
         close(io)
     end

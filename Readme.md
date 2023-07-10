@@ -16,6 +16,11 @@ When determining which AD algorithm to use keep in mind the limitations of **FD*
 
 To get accurate results for the Enzyme benchmarks you must set the number of threads in Julia to 1. Otherwise Enzyme will generate slower thread safe code.
 
+Finding the perfect parameter settings and calling sequences for AD packages can be tricky. Getting the best results may require deep knowledge of the package, and much experimentation. If you are not an expert it is hard to be certain you are getting maximum performance. I am expert only in **FD** so I am grateful to Yinbgo Ma and Billy Moses for their valuable advice (and code) for the ForwardDiff and Enzyme benchmarks. 
+
+Writing and optimizing benchmarks for such a diverse set of AD algorithms has been surprisingly time consuming, and I have not yet figured out how to make all the benchmarks work properly and efficiently. Submit a PR if you can make a benchmark functional or faster and I will update this Readme file.
+
+These are the benchmarks:
 
 <details>
   <summary> Compute the gradient and the Hessian of the Rosenbrock function. The Hessian is extremely sparse so algorithms that can detect sparsity will have an advantage. </summary>
@@ -44,7 +49,7 @@ export rosenbrock
 </details>
 
 <details> 
-    <summary> Compute the Jacobian of SHFunctions which constructs the spherical harmonics of order `n`: </summary>
+    <summary> Compute the Jacobian of SHFunctions which constructs the spherical harmonics of order n: </summary>
 
 ```
 
@@ -144,7 +149,7 @@ export SHFunctions
 </details>
 
 <details> 
-    <summary> Compute the 20x20 Jacobian, ∂dy/∂y, of this function (used in an ODE problem) and compare to a hand optimized Jacobian. The Jacobian is approximately 25% non-zeros so algorithms that exploit sparsity in the derivative will have an advantage. </summary>
+    <summary> Compute the 20x20 Jacobian, ∂dy/∂y, of a function in an ODE problem and compare to a hand optimized Jacobian. The Jacobian is approximately 25% non-zeros so algorithms that exploit sparsity in the derivative will have an advantage. </summary>
 
 ```
 
@@ -228,7 +233,7 @@ end
 </details>
 
 <details>
-    <summary> This is the hand optimized Jacobian, ∂dy/∂y, from the ODE function, above. Your Jacobian function should zero out the in place array J which the Jacobian result will be written into, unless you are using sparse arrays. </summary>
+    <summary> This is the hand optimized Jacobian, ∂dy/∂y, from the ODE function, above. </summary>
 
 ```
 function fjac(J, y, p, t)
@@ -341,60 +346,54 @@ end
 </details>
 
 
+### Results
 
-## Results
-Finding the perfect parameter settings and calling sequences for AD packages can be tricky. Getting the best results may require deep knowledge of the package, and much experimentation. If you are not an expert it is hard to be certain you are getting maximum performance. I am expert only in **FD** so I am grateful to Yinbgo Ma and Billy Moses for their valuable advice (and code) for the ForwardDiff and Enzyme benchmarks. 
-
-Writing and optimizing benchmarks for such a diverse set of AD algorithms has been surprisingly time consuming. The work is not complete because I haven't yet figured out how to make working benchmarks for all the packages. Submit a PR if you can make a benchmark functional or faster and I will update this Readme file.
-
-These timings are just for evaluating the derivative function. They do not include preprocessing time that make the evaluation more efficient.
+These timings are just for evaluating the derivative function. They do not include preprocessing time required to generate and compile the function nor any time needed to generate auxiliary data structures that make the evaluation more efficient.
 
 The times in each row are normalized to the shortest time in that row. The fastest algorithm will have a relative time of 1.0 and all other algorithms will have a time ≥ 1.0. Smaller numbers are better.
 
-System information for timing:
-```julia
-julia> versioninfo()
-Julia Version 1.9.1
-Commit 147bdf428c (2023-06-07 08:27 UTC)
+All benchmarks run on this system:
+```julia 
+Julia Version 1.9.2
+Commit e4ee485e90 (2023-07-05 09:39 UTC)
 Platform Info:
   OS: Windows (x86_64-w64-mingw32)
-  CPU: 32 × AMD Ryzen 9 7950X 16-Core Processor
+  CPU: 32 × AMD Ryzen 9 7950X 16-Core Processor            
   WORD_SIZE: 64
   LIBM: libopenlibm
   LLVM: libLLVM-14.0.6 (ORCJIT, znver3)
   Threads: 1 on 32 virtual cores
 Environment:
   JULIA_EDITOR = code.cmd
-  JULIA_NUM_THREADS = 1
-```
-
+``` 
 
 | Function | FD sparse | FD dense | ForwardDiff | ReverseDiff | Enzyme | Zygote |
 |---------|-----------|----------|-------------|-------------|--------|--------|
-| Rosenbrock Hessian | **1.00** | 75.60 | 571669.52 | 423058.61 | [^a] | 1015635.96 |
-| Rosenbrock gradient | [^a] | 1.28 | 682.41 | 306.27 | **1.00** | 4726.62 |
-| Simple matrix Jacobian | [^a] | **1.00** | 42.61 | 54.60 | [^a] | 130.13 |
-| Spherical harmonics Jacobian | [^a] | **1.00** | 36.00 | [^a] | [^a] | [^a] |
+| Rosenbrock Hessian | **1.00** | 73.31 | 579092.33 | 440302.62 | [^5.2] | 1191965.23 |
+| Rosenbrock gradient | [^1] | 1.29 | 683.59 | 305.32 | **1.00** | 4814.04 |
+| Simple matrix Jacobian | [^1] | **1.00** | 48.10 | 48.83 | [^5] | 129.16 |
+| Spherical harmonics Jacobian | [^1] | **1.00** | 35.28 | [^4] | [^5.1] | [^6] |
+[^5.2]: fails with this error "ERROR: Function to differentiate is guaranteed to return an error and doesn't make sense to autodiff. Giving up"
+[^1]: **FD** sparse was slower than **FD** dense so results are only shown for dense.
+[^1]: **FD** sparse was slower than **FD** dense so results are only shown for dense.
+[^5]: Enzyme prints "Warning: using fallback BLAS replacements, performance may be degraded", followed by stack overflow error or endless loop.
+[^1]: **FD** sparse was slower than **FD** dense so results are only shown for dense.
+[^4]: ReverseDiff failed on Spherical harmonics.
+[^5.1]: Enzyme crashes Julia REPL for SHFunctions benchmark.
+[^6]: Zygote doesn't work with Memoize
 
 
- ### Comparison of AD algorithms to a hand optimized Jacobian
-This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl) for a function used in the solution of an ODE. This benchmark was contributed by Yingbo Ma. Again the results are normalized to the run time of the fastest algorithm, which will have a relative time of 1.0. All other times will be ≥ 1.0. Smaller numbers are better.
+ ### Comparison of AD algorithms with a hand optimized Jacobian
+This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl). As before timings are relative to the fastest time.
+Enzyme (array) is written to accept a vector input and return a matrix output to be compatible with the calling convention for the ODE function. This is very slow because Enzyme does not yet do full optimizations on the these input/output types. Enzyme (tuple) is written to accept a tuple input and returns tuple(tuples). This is much faster but not compatible with the calling convetions of the ODE function. This version uses features not avaialable in the registered version of Enzyme (as of 7-9-2023). You will need to `] add Enzyme#main` instead of using the registered version.
 
-All of the benchmarks except Enzyme accept a vector input and either return a matrix or modify one in place. This is a requirement to make the ODE code compatible with the particular ODE solver that is calling the ODE function. 
-
-However the vector/matrix version of the Enzyme benchmark is extremely slow because Enzyme does not yet apply the most sophisticated optimizations for these inputs/outputs. Future versions of Enzyme may address this problem.
-
-Two versions of the Enzyme benchmark were written, one of which is vector/matrix compatible, the other of which takes a tuple input and returns a tuple(tuples). The latter optimizes better but is not compatible with the ODE solver. 
-
-If compatibility with other code that requires vector/matrix input-output is an issue then you should look at the timing for Enzyme(array). If compatibility is not an issue look at the timing for Enzyme(tuple).
-
-
-| FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme (tuple) | Enzyme (array) | Zygote | Hand optimized|
+| FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme (array) | Enzyme (tuple) | Zygote | Hand optimized|
 |-----------|----------|-------------|-------------|----------------|----------------|--------|---------------|
- **1.00** | 1.81 | 29.45 | [^a] | 4.8 | 225 | 556889.67 | 2.47 |
+ **1.00** | 1.78 | 31.50 | [^4.1] | 323.85 | 4.31 | 561910.05 | 2.51 |
 
 
-It is worth nothing that both **FD** sparse and **FD** dense are faster than the hand optimized Jacobian.
+It is worth nothing that both FD sparse and FD dense are faster than the hand optimized Jacobian.
+[^4.1]: ODE not implemented for ReverseDiff
 
 ### Rate of growth of Jacobian
 It is also intersting to note the ratio of the number of operations of the **FD** Jacobian of a function to the number of operations in the original function. 
@@ -412,4 +411,4 @@ The ratio (jacobian operations)/(original function operations) stays close to a 
 
 This is a very small sample of functions but it will be interesting to see if this slow growth of the Jacobian with increasing domain and codomain dimensions generalizes to all functions or only applies to functions with special graph structure.
 
-[^a]: For the FD sparse column, FD sparse was slower than FD dense so times are not listed for this column. For all other columns I haven't yet figured out how to make it work correctly and efficiently.
+

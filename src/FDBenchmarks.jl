@@ -27,7 +27,7 @@ export fd_rosenbrock_hessian
 
 
 function fd_sparse_placeholder(nterms)
-    return ("[^1]", "[^1]: **FD** sparse was slower than **FD** dense so results are only show for dense.")
+    return ("[^1]", "[^1]: **FD** sparse was slower than **FD** dense so results are only shown for dense.")
 end
 export fd_sparse_placeholder
 
@@ -73,8 +73,6 @@ function fd_R¹⁰⁰R¹⁰⁰(n_size)
     orig_func = vec(FastDifferentiation.Node.(f(ain, bin)))
     # println("orig ops $(FastDifferentiation.number_of_operations(orig_func))")
     inputs = vcat(av, bv)
-
-    @benchmark FastDifferentiation.jacobian(orig_func, inputs)
 
     jac = FastDifferentiation.jacobian(orig_func, inputs)
     # println("num ops $(FastDifferentiation.number_of_operations(jac))")

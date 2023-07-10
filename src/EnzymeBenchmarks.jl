@@ -34,27 +34,28 @@ export test_enzyme
 
 
 function enzyme_rosenbrock_hessian(nterms)
-    # return ("[5.2]", "Enzyme call doesn't work.")
+    return ("[^5.2]", "[^5.2]: fails with this error \"ERROR: Function to differentiate is guaranteed to return an error and doesn't make sense to autodiff. Giving up\"")
     y = [0.0]
     x = rand(nterms)
 
-    vdy = NTuple{nterms,Vector{Float64}}(([0.0] for _ in 1:nterms))
-    vdx = Vector{Vector{Float64}}(undef, nterms)
-    for i in 1:nterms
-        tmp = zeros(nterms)
-        tmp[i] = 1.0
-        vdx[i] = tmp
-    end
+    vdy = ntuple(i -> [0.0], nterms)
+    vdx = ntuple(i -> begin
+            tmp = zeros(nterms)
+            tmp[i] = 1
+            return tmp
+        end, nterms)
 
     bx = zeros(nterms)
     by = [1.0]
-    vdbx = Vector{Vector{Float64}}(undef, nterms)
-    for i in 1:nterms
-        tmp = zeros(nterms)
-        vdbx[i] = tmp
-    end
-    vdby = NTuple{nterms,Vector{Float64}}(([0.0] for _ in 1:nterms))
+    vdbx = ntuple(i -> zeros(nterms), nterms)
 
+    vdby = ntuple(i -> [0.0], nterms)
+
+    a1 = Enzyme.Duplicated(x, bx)
+    a2 = Enzyme.Duplicated(y, by)
+    a3 = Enzyme.Duplicated.(vdx, vdbx)
+    a4 = Enzyme.Duplicated.(vdy, vdby)
+    println("$(typeof(a1)) $(typeof(a2)) $(typeof(a3)) $(typeof(a4))")
     Enzyme.autodiff(
         Enzyme.Forward,
         (x, y) -> Enzyme.autodiff_deferred(Reverse, rosenbrock, x, y),
@@ -65,7 +66,7 @@ end
 export enzyme_rosenbrock_hessian
 
 function enzyme_SHFunctions(nterms)
-    return ("[5.1]", "Enzyme crashes Julia REPL for SHFunctions benchmark.")
+    return ("[^5.1]", "[^5.1]: Enzyme crashes Julia REPL for SHFunctions benchmark.")
 
     f(x) = SHFunctions(nterms, x[1], x[2], x[3])
 
@@ -77,7 +78,7 @@ end
 export enzyme_SHFunctions
 
 function enzyme_R¹⁰⁰R¹⁰⁰(nterms)
-    return ("[^5]", "Enzyme doesn't terminate on R¹⁰⁰R¹⁰⁰ benchmark.")
+    return ("[^5]", "[^5]: Enzyme prints \"Warning: using fallback BLAS replacements, performance may be degraded\", followed by stack overflow error or endless loop.")
     function wrapf(v)
         rows, cols = size(v)
         a = view(v, :, 1:(cols÷2))
@@ -92,7 +93,7 @@ function enzyme_R¹⁰⁰R¹⁰⁰(nterms)
     Enzyme.jacobian(Enzyme.Reverse, wrapf, vin, Val(prod(composite_size)))
 
     #This doesn't work locks up terminal
-    Enzyme.jacobian(Enzyme.Forward, wrapf, vin, Val(prod(composite_size)))
+    # Enzyme.jacobian(Enzyme.Forward, wrapf, vin, Val(prod(composite_size)))
 
 end
 export enzyme_R¹⁰⁰R¹⁰⁰
