@@ -175,6 +175,8 @@ function write_markdown(benchmark_times, function_names, ODE_times)
             io,
             """### Results
 
+    To generate the markdown for the results in this section execute the function `write_markdown()` in the file `Benchmarks.jl`.
+        
     These timings are just for evaluating the derivative function. They do not include preprocessing time required to generate and compile the function nor any time needed to generate auxiliary data structures that make the evaluation more efficient.
 
     The times in each row are normalized to the shortest time in that row. The fastest algorithm will have a relative time of 1.0 and all other algorithms will have a time ≥ 1.0. Smaller numbers are better.
