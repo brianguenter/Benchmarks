@@ -1,4 +1,4 @@
-# Benchmark Problems
+# Benchmark for FastDifferentiation
 
 
 
@@ -387,7 +387,16 @@ Environment:
 This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl). As before timings are relative to the fastest time.
 Enzyme (array) is written to accept a vector input and return a matrix output to be compatible with the calling convention for the ODE function. This is very slow because Enzyme does not yet do full optimizations on the these input/output types. Enzyme (tuple) is written to accept a tuple input and returns tuple(tuples). This is much faster but not compatible with the calling convetions of the ODE function. This version uses features not avaialable in the registered version of Enzyme (as of 7-9-2023). You will need to `] add Enzyme#main` instead of using the registered version.
 
-| FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme (array) | Enzyme (tuple) | Zygote | Hand optimized|
+All of the benchmarks except Enzyme accept a vector input and either return a matrix or modify one in place. This is a requirement to make the ODE code compatible with the particular ODE solver that is calling the ODE function. 
+
+However the vector/matrix version of the Enzyme benchmark is extremely slow because Enzyme does not yet apply the most sophisticated optimizations for these inputs/outputs. Future versions of Enzyme may address this problem.
+
+Two versions of the Enzyme benchmark were written, one of which is vector/matrix compatible, the other of which takes a tuple input and returns a tuple(tuples). The latter optimizes better but is not compatible with the ODE solver. 
+
+If compatibility with other code that requires vector/matrix input-output is an issue then you should look at the timing for Enzyme(array). If compatibility is not an issue look at the timing for Enzyme(tuple).
+
+
+| FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme (tuple) | Enzyme (array) | Zygote | Hand optimized|
 |-----------|----------|-------------|-------------|----------------|----------------|--------|---------------|
  **1.00** | 1.78 | 31.50 | [^4.1] | 323.85 | 4.31 | 561910.05 | 2.51 |
 
@@ -400,7 +409,9 @@ It is also intersting to note the ratio of the number of operations of the **FD*
 
 Problem sizes in approximately the ratio 1 \:10 \: 100 \: 1000 were computed for several of the benchmarks.
 
-The ratio (jacobian operations)/(original function operations) stays close to a constant over 2 orders of magnitude of problem size for Rosenbrock and Spherical harmonics. For the simple matrix ops Jacobian the ratio goes from 2.6 to 6.5 over 3 orders of magnitude of problem size. The ratio is growing far more slowly than the domain and codomain dimensions of the problem: the smallest instance is an R⁸->R⁴ function and the largest is R⁸⁰⁰->R⁴⁰⁰ an increase in both domain and codomain dimensions of 100x.
+The ratio (jacobian operations)/(original function operations) stays close to a constant over 2 orders of magnitude of problem size for Rosenbrock and Spherical harmonics. 
+
+For the simple matrix ops Jacobian the ratio goes from 2.6 to 6.5 over 3 orders of magnitude of problem size. The ratio is growing far more slowly than the domain and codomain dimensions of the problem: the smallest instance is an R⁸->R⁴ function and the largest is R⁸⁰⁰->R⁴⁰⁰ an increase in both domain and codomain dimensions of 100x.
 
 |Relative problem size | Rosenbrock Jacobian | Spherical harmonics Jacobian | Simple matrix ops Jacobian |
 |-------|---------------------|------------------------------|------------------------|
