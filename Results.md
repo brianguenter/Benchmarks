@@ -1,6 +1,8 @@
-## Comparison of FD with other AD algorithms
+### Results
 
-These timings are just for evaluating the derivative function. They do not include preprocessing time to generate either the function or auxiliary data structures that make the evaluation more efficient.
+To generate the markdown for the results in this section execute the function `write_markdown()` in the file `Benchmarks.jl`.
+    
+These timings are just for evaluating the derivative function. They do not include preprocessing time required to generate and compile the function nor any time needed to generate auxiliary data structures that make the evaluation more efficient.
 
 The times in each row are normalized to the shortest time in that row. The fastest algorithm will have a relative time of 1.0 and all other algorithms will have a time ≥ 1.0. Smaller numbers are better.
 
@@ -17,33 +19,31 @@ Platform Info:
   Threads: 1 on 32 virtual cores
 Environment:
   JULIA_EDITOR = code.cmd
-  JULIA_NUM_THREADS = 1
 ``` 
 
 | Function | FD sparse | FD dense | ForwardDiff | ReverseDiff | Enzyme | Zygote |
 |---------|-----------|----------|-------------|-------------|--------|--------|
-essian | **1.00** | 56.37 | 564425.56 | 447605.73 | [^5.2] | 1130262.63 |
-| Rosenbrock gradient | [^1] | 1.29 | 683.36 | 307.36 | **1.00** | 4852.68 |
-| Simple matrix Jacobian | [^1] | **1.00** | 49.19 | 51.53 | [^5] | 132.90 |
-| Spherical harmonics Jacobian | [^1] | **1.00** | 37.74 | [^4] | [^5.1] | [^6] |
-[^5.2]: fails with this error "ERROR: Function to differentiate is guaranteed to return an error and doesn't make sense to autodiff. Giving up"
+| Rosenbrock Hessian | **1.00** | 8.31 | 33455.33 | 99042.70 | 819.80 | 85003.60 |
+| Rosenbrock gradient | [^1] | 1.29 | 674.82 | 299.67 | **1.00** | 4208.30 |
+| Simple matrix Jacobian | [^1] | **1.00** | 34.09 | 51.25 | [^50] | 125.26 |
+| Spherical harmonics Jacobian | [^1] | **1.00** | 29.25 | [^40] | [^51] | [^6] |
 [^1]: **FD** sparse was slower than **FD** dense so results are only shown for dense.
 [^1]: **FD** sparse was slower than **FD** dense so results are only shown for dense.
-[^5]: Enzyme prints "Warning: using fallback BLAS replacements, performance may be degraded", followed by stack overflow error or endless loop.
+[^50]: Enzyme prints "Warning: using fallback BLAS replacements, performance may be degraded", followed by stack overflow error or endless loop.
 [^1]: **FD** sparse was slower than **FD** dense so results are only shown for dense.
-[^4]: ReverseDiff failed on Spherical harmonics.
-[^5.1]: Enzyme crashes Julia REPL for SHFunctions benchmark.
+[^40]: ReverseDiff failed on Spherical harmonics.
+[^51]: Enzyme crashes Julia REPL for SHFunctions benchmark.
 [^6]: Zygote doesn't work with Memoize
 
 
  ### Comparison to hand optimized Jacobian.
 This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl). As before timings are relative to the fastest time.
-Enzyme (array) is written to accept a vector input and return a matrix output to be compatible with the calling convention for the ODE function. This is very slow because Enzyme does not yet do full optimizations on the these input/output types. Enzyme (tuple) is written to accept a tuple input and returns tuple(tuples). This is much faster but not compatible with the calling convetions of the ODE function. This version uses features not avaialable in the registered version of Enzyme (as of 7-9-2023). You will need to `] add Enzyme#main` instead of using the registered version.
+Enzyme (array) is written to accept a vector input and return a matrix output to be compatible with the calling convention for the ODE function. This is very slow because Enzyme does not yet do full optimizations on these input/output types. Enzyme (tuple) is written to accept a tuple input and returns tuple(tuples). This is much faster but not compatible with the calling convetions of the ODE function. This version uses features not avaialable in the registered version of Enzyme (as of 7-9-2023). You will need to `] add Enzyme#main` instead of using the registered version.
 
 | FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme (array) | Enzyme (tuple) | Zygote | Hand optimized|
 |-----------|----------|-------------|-------------|----------------|----------------|--------|---------------|
- **1.00** | 1.85 | 31.56 | [^4.1] | 332.18 | 4.32 | 567132.18 | 2.53 |
+ **1.00** | 1.83 | 32.72 | [^41] | 281.05 | 4.30 | 554767.55 | 2.50 |
 
 
 It is worth nothing that both FD sparse and FD dense are faster than the hand optimized Jacobian.
-[^4.1]: ODE not implemented for ReverseDiff
+[^41]: ODE not implemented for ReverseDiff
