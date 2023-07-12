@@ -12,9 +12,13 @@ When determining which AD algorithm to use keep in mind the limitations of **FD*
 
 To get accurate results for the Enzyme benchmarks you must set the number of threads in Julia to 1. Otherwise Enzyme will generate slower thread safe code.
 
-Finding the perfect parameter settings and calling sequences for AD packages can be tricky. Getting the best results may require deep knowledge of the package, and much experimentation. If you are not an expert it is hard to be certain you are getting maximum performance. I am expert only in **FD** so I am grateful to Yinbgo Ma and Billy Moses for their valuable advice (and code) for the ForwardDiff and Enzyme benchmarks. 
+At least two of these AD systems, **FD**, and Enzyme, are being actively developed so these benchmarks are only a snaphot in time. As performance improves I will update these benchmarks to reflect the latest results.
 
-Writing and optimizing benchmarks for such a diverse set of AD algorithms has been surprisingly time consuming, and I have not yet figured out how to make all the benchmarks work properly and efficiently. Submit a PR if you can make a benchmark functional or faster and I will update this Readme file.
+Finding the perfect parameter settings and calling sequences for AD packages can be involved. Getting the best results may require deep knowledge of the package, and much experimentation. If you are not an expert it is hard to be certain you are getting maximum performance. I am expert only in **FD** so I am grateful to Yinbgo Ma and Billy Moses for their valuable advice (and code) for the ForwardDiff and Enzyme benchmarks. 
+
+Benchmarks without a working implementation are footnoted in the table.
+
+Submit a PR if you can make a benchmark functional or faster and I will update this Readme file.
 
 These are the benchmarks:
 
@@ -383,7 +387,7 @@ Environment:
 
  ### Comparison to hand optimized Jacobian.
 This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl). As before timings are relative to the fastest time.
-Enzyme (array) is written to accept a vector input and return a matrix output to be compatible with the calling convention for the ODE function. This is very slow because Enzyme does not yet do full optimizations on the these input/output types. Enzyme (tuple) is written to accept a tuple input and returns tuple(tuples). This is much faster but not compatible with the calling convetions of the ODE function. This version uses features not avaialable in the registered version of Enzyme (as of 7-9-2023). You will need to `] add Enzyme#main` instead of using the registered version.
+Enzyme (array) is written to accept a vector input and return a matrix output to be compatible with the calling convention for the ODE function. This is very slow because Enzyme does not yet do full optimizations on these input/output types. Enzyme (tuple) is written to accept a tuple input and returns tuple(tuples). This is much faster but not compatible with the calling convetions of the ODE function. This version uses features not avaialable in the registered version of Enzyme (as of 7-9-2023). You will need to `] add Enzyme#main` instead of using the registered version.
 
 | FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme (array) | Enzyme (tuple) | Zygote | Hand optimized|
 |-----------|----------|-------------|-------------|----------------|----------------|--------|---------------|

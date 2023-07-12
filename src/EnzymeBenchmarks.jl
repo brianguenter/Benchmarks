@@ -11,7 +11,11 @@ export enzyme_rosenbrock_gradient
 
 """example from Enzyme documentation. Doesn't work"""
 function test_enzyme()
-    f(x) = x[1]^2 * x[2]^2
+    function f(x::Array{Float64}, y::Array{Float64})
+        y[1] = x[1] * x[1] * x[1] + x[2] * x[2] * x[2]
+        return nothing
+    end
+
     y = [0.0]
     x = [2.0, 2.0]
 
@@ -29,12 +33,16 @@ function test_enzyme()
         Enzyme.BatchDuplicated(Enzyme.Duplicated(x, bx), Enzyme.Duplicated.(vdx, vdbx)),
         Enzyme.BatchDuplicated(Enzyme.Duplicated(y, by), Enzyme.Duplicated.(vdy, vdby)),
     )
+    return vdbx
 end
 export test_enzyme
 
 
 function enzyme_rosenbrock_hessian(nterms)
-    return ("[^5.2]", "[^5.2]: fails with this error \"ERROR: Function to differentiate is guaranteed to return an error and doesn't make sense to autodiff. Giving up\"")
+    function f(x::Array{Float64}, y::Array{Float64})
+        y[1] = rosenbrock(x)
+    end
+
     y = [0.0]
     x = rand(nterms)
 
@@ -51,19 +59,59 @@ function enzyme_rosenbrock_hessian(nterms)
 
     vdby = ntuple(i -> [0.0], nterms)
 
-    a1 = Enzyme.Duplicated(x, bx)
-    a2 = Enzyme.Duplicated(y, by)
-    a3 = Enzyme.Duplicated.(vdx, vdbx)
-    a4 = Enzyme.Duplicated.(vdy, vdby)
-    println("$(typeof(a1)) $(typeof(a2)) $(typeof(a3)) $(typeof(a4))")
-    Enzyme.autodiff(
+    return @benchmark Enzyme.autodiff(
         Enzyme.Forward,
-        (x, y) -> Enzyme.autodiff_deferred(Reverse, rosenbrock, x, y),
-        Enzyme.BatchDuplicated(Enzyme.Duplicated(x, bx), Enzyme.Duplicated.(vdx, vdbx)),
-        Enzyme.BatchDuplicated(Enzyme.Duplicated(y, by), Enzyme.Duplicated.(vdy, vdby)),
+        (x, y) -> Enzyme.autodiff_deferred(Enzyme.Reverse, $f, x, y),
+        Enzyme.BatchDuplicated(Enzyme.Duplicated($x, $bx), Enzyme.Duplicated.($vdx, $vdbx)),
+        Enzyme.BatchDuplicated(Enzyme.Duplicated($y, $by), Enzyme.Duplicated.($vdy, $vdby)),
     )
 end
 export enzyme_rosenbrock_hessian
+
+# code for enzyme rosenbrock hessian. Uses @generated so some code has to be at top level
+
+# NTERMS = 100
+# export NTERMS
+
+# x__ = SVector{NTERMS,Float64}(rand(NTERMS))
+# undefvar__ = MVector{NTERMS,Float64}(rand(NTERMS))
+# @generated function onehott()
+#     res = []
+#     for i in 1:NTERMS
+#         tmp = []
+#         for j in 1:NTERMS
+#             if i == j
+#                 push!(tmp, 1.0)
+#             else
+#                 push!(tmp, 0.0)
+#             end
+#         end
+#         push!(res, SVector{NTERMS,Float64}(tmp...))
+#     end
+#     :($((res...,)))
+# end
+# onehott()
+
+# hess__ = ntuple(Val(NTERMS)) do i
+#     Base.@_inline_meta
+#     MVector{NTERMS,Float64}(zeros(NTERMS))
+# end
+
+# function tmp(x, dx)
+#     dx .= Enzyme.autodiff_deferred(Enzyme.Reverse, rosenbrock, Enzyme.Active(x))[1][1]
+#     nothing
+# end
+
+# bd1__ = Enzyme.BatchDuplicatedFunc{SVector{NTERMS,Float64},NTERMS,typeof(onehott)}(x__)
+# bd2__ = Enzyme.BatchDuplicatedNoNeed(undefvar__, hess__)
+
+
+# function time_hessian()
+#     @benchmark Enzyme.autodiff(Enzyme.Forward, $tmp, $bd1__, $bd2__)
+# end
+# export time_hessian
+
+#end code for enzyme rosenbrock hessian
 
 function enzyme_SHFunctions(nterms)
     return ("[^5.1]", "[^5.1]: Enzyme crashes Julia REPL for SHFunctions benchmark.")
