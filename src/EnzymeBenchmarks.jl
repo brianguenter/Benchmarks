@@ -38,7 +38,7 @@ end
 export test_enzyme
 
 
-function enzyme_rosenbrock_hessian(nterms)
+function enzyme_rosenbrock_hessian2(nterms)
     function f(x::Array{Float64}, y::Array{Float64})
         y[1] = rosenbrock(x)
     end
@@ -66,8 +66,30 @@ function enzyme_rosenbrock_hessian(nterms)
         Enzyme.BatchDuplicated(Enzyme.Duplicated($y, $by), Enzyme.Duplicated.($vdy, $vdby)),
     )
 end
-export enzyme_rosenbrock_hessian
+export enzyme_rosenbrock_hessian2
 
+function enzyme_rosenbrock_hessian(nterms)
+    x = rand(nterms)
+
+    undefvar = similar(x)
+    onehotv = Enzyme.onehot(x)
+    hess = ntuple(Val(nterms)) do i
+        Base.@_inline_meta
+        zeros(nterms)
+    end
+
+    function tmp(x, dx)
+        Enzyme.autodiff_deferred(Enzyme.Reverse, rosenbrock, Enzyme.Duplicated(x, dx))
+        nothing
+    end
+
+    bd1 = Enzyme.BatchDuplicated(x, onehotv)
+    bd2 = Enzyme.BatchDuplicatedNoNeed(undefvar, hess)
+
+    @benchmark Enzyme.autodiff(Enzyme.Forward, $tmp, $bd1, $bd2)
+
+end
+export enzyme_rosenbrock_hessian
 # code for enzyme rosenbrock hessian. Uses @generated so some code has to be at top level
 
 # NTERMS = 100
