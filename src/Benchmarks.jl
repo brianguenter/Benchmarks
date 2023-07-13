@@ -116,7 +116,7 @@ export run_benchmarks
 
 function run_all(bench_list)
 
-    parameters = (1000, 1000, 10, 40)
+    parameters = (200, 1000, 10, 40)
 
     # for (bench, parameter) in zip(all_benches, parameters)
     #     println("benchmark $bench parameter $parameter\n")
@@ -217,7 +217,7 @@ function write_markdown(benchmark_times, function_names, ODE_times)
             io,
             """\n\n ### Comparison to hand optimized Jacobian.
    This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl). As before timings are relative to the fastest time.
-   Enzyme (array) is written to accept a vector input and return a matrix output to be compatible with the calling convention for the ODE function. This is very slow because Enzyme does not yet do full optimizations on the these input/output types. Enzyme (tuple) is written to accept a tuple input and returns tuple(tuples). This is much faster but not compatible with the calling convetions of the ODE function. This version uses features not avaialable in the registered version of Enzyme (as of 7-9-2023). You will need to `] add Enzyme#main` instead of using the registered version.
+   Enzyme (array) is written to accept a vector input and return a matrix output to be compatible with the calling convention for the ODE function. This is very slow because Enzyme does not yet do full optimizations on these input/output types. Enzyme (tuple) is written to accept a tuple input and returns tuple(tuples). This is much faster but not compatible with the calling convetions of the ODE function. This version uses features not avaialable in the registered version of Enzyme (as of 7-9-2023). You will need to `] add Enzyme#main` instead of using the registered version.
 
    | FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme (array) | Enzyme (tuple) | Zygote | Hand optimized|
    |-----------|----------|-------------|-------------|----------------|----------------|--------|---------------|\n"""

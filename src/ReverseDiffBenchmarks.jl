@@ -53,12 +53,12 @@ end
 export reverse_diff_rosenbrock_hessian
 
 function reverse_diff_SHFunctions(order)
-    return ("[^4]", "[^4]: ReverseDiff failed on Spherical harmonics.")
+    return ("[^40]", "[^40]: ReverseDiff failed on Spherical harmonics.")
 end
 export reverse_diff_SHFunctions
 
 function reverse_diff_ODE()
-    return ("[^4.1]", "[^4.1]: ODE not implemented for ReverseDiff")
+    return ("[^41]", "[^41]: ODE not implemented for ReverseDiff")
 
 end
 export reverse_diff_ODE

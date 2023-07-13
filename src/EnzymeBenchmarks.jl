@@ -136,7 +136,7 @@ export enzyme_rosenbrock_hessian
 #end code for enzyme rosenbrock hessian
 
 function enzyme_SHFunctions(nterms)
-    return ("[^5.1]", "[^5.1]: Enzyme crashes Julia REPL for SHFunctions benchmark.")
+    return ("[^51]", "[^51]: Enzyme crashes Julia REPL for SHFunctions benchmark.")
 
     f(x) = SHFunctions(nterms, x[1], x[2], x[3])
 
@@ -148,7 +148,7 @@ end
 export enzyme_SHFunctions
 
 function enzyme_R¹⁰⁰R¹⁰⁰(nterms)
-    return ("[^5]", "[^5]: Enzyme prints \"Warning: using fallback BLAS replacements, performance may be degraded\", followed by stack overflow error or endless loop.")
+    return ("[^50]", "[^50]: Enzyme prints \"Warning: using fallback BLAS replacements, performance may be degraded\", followed by stack overflow error or endless loop.")
     function wrapf(v)
         rows, cols = size(v)
         a = view(v, :, 1:(cols÷2))
