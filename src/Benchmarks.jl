@@ -47,23 +47,23 @@ function ODE_comparison()
     float_J1 = Matrix{Float64}(undef, 20, 20)
     float_J2 = Matrix{Float64}(undef, 20, 20)
     float_y = rand(20)
-    fd_exe(float_y, float_J1)
+    fd_exe(float_J1, float_y)
 
     sparse_jac = FastDifferentiation.sparse_jacobian(dy, y)
     sparse_fd_exe = FastDifferentiation.make_function(sparse_jac, y, in_place=true)
     sparse_J = similar(sparse_jac, Float64)
-    println("sparse $(sparse_fd_exe(float_y, sparse_J))")
-    sparse_fd_exe(float_y, sparse_J)
+    println("sparse $(sparse_fd_exe(sparse_J,float_y))")
+    sparse_fd_exe(sparse_J, float_y)
 
-    sparse = FastDifferentiation.sparsity(FastDifferentiation.DerivativeGraph(dy))
+    sparse = nnz(sparse_J) / prod(size(sparse_J))
     @info "sparsity of ODE $sparse"
     ODE.fjac(float_J2, float_y, nothing, nothing)
     @assert isapprox(float_J1, float_J2, atol=1e-11)
     @assert isapprox(float_J2, sparse_J)
 
     a = Any[]
-    push!(a, @benchmark $sparse_fd_exe($float_y, $sparse_J))
-    push!(a, @benchmark $fd_exe($float_y, $float_J1))
+    push!(a, @benchmark $sparse_fd_exe($sparse_J, $float_y))
+    push!(a, @benchmark $fd_exe($float_J1, $float_y,))
     push!(a, @benchmark(ODE.fjac($float_J2, $float_y, nothing, nothing)))
     times = map(x -> minimum(x.times), a)
     return a, map(x -> x / times[1], times)
@@ -217,7 +217,7 @@ function write_markdown(benchmark_times, function_names, ODE_times)
             io,
             """\n\n ### Comparison to hand optimized Jacobian.
    This compares AD algorithms to a hand optimized Jacobian (in file ODE.jl). As before timings are relative to the fastest time.
-   Enzyme (array) is written to accept a vector input and return a matrix output to be compatible with the calling convention for the ODE function. This is very slow because Enzyme does not yet do full optimizations on these input/output types. Enzyme (tuple) is written to accept a tuple input and returns tuple(tuples). This is much faster but not compatible with the calling convetions of the ODE function. This version uses features not avaialable in the registered version of Enzyme (as of 7-9-2023). You will need to `] add Enzyme#main` instead of using the registered version.
+   Enzyme (array) is written to accept a vector input and return a matrix output to be compatible with the calling convention for the ODE function. This is very slow because Enzyme does not yet do full optimizations on these input/output types. Enzyme (tuple) is written to accept a tuple input and returns tuple(tuples). This is much faster but not compatible with the calling convetions of the ODE function. This version uses features not available in the registered version of Enzyme (as of 7-9-2023). You will need to `] add Enzyme#main` instead of using the registered version.
 
    | FD sparse | FD Dense | ForwardDiff | ReverseDiff | Enzyme (array) | Enzyme (tuple) | Zygote | Hand optimized|
    |-----------|----------|-------------|-------------|----------------|----------------|--------|---------------|\n"""

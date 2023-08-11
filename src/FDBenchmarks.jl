@@ -5,9 +5,9 @@ function fd_rosenbrock_gradient(nterms)
 
 
     jac = FastDifferentiation.jacobian([rosenbrock(inp)], inp)
-    fd_func = FastDifferentiation.make_function(jac, inp, in_place=true)
-    fd_func(x, out)
-    @benchmark $fd_func($x, $out)
+    fd_func = FastDifferentiation.make_function(jac, inp, in_place=true, init_with_zeros=false)
+    fd_func(out, x)
+    @benchmark $fd_func($out, $x)
 end
 export fd_rosenbrock_gradient
 
@@ -21,7 +21,7 @@ function fd_rosenbrock_hessian(nterms)
     fd_func = FastDifferentiation.make_function(hess, inp, in_place=true)
 
 
-    @benchmark $fd_func($x, $out)
+    @benchmark $fd_func($out, $x)
 end
 export fd_rosenbrock_hessian
 
@@ -42,7 +42,7 @@ function fd_rosenbrock_hessian_sparse(nterms)
 
     sp_out = similar(hess, Float64)
 
-    @benchmark $fd_func($x, $sp_out)
+    @benchmark $fd_func($sp_out, $x)
 end
 export fd_rosenbrock_hessian_sparse
 
@@ -83,7 +83,7 @@ function fd_R¹⁰⁰R¹⁰⁰(n_size)
 
 
     float_input = rand(2 * n_size^2)
-    bench1 = @benchmark $fd_func($float_input, $tmp_mat)
+    bench1 = @benchmark $fd_func($tmp_mat, $float_input)
     return bench1
 end
 export fd_R¹⁰⁰R¹⁰⁰
@@ -100,7 +100,7 @@ function fd_SHFunctions(nterms)
 
     func = FastDifferentiation.make_function(jac, SVector(x, y, z), in_place=true)
 
-    @benchmark $func(inputs, $result) setup = inputs = rand(3)
+    @benchmark $func($result, inputs) setup = inputs = rand(3)
 end
 export fd_SHFunctions
 
@@ -117,8 +117,9 @@ function fd_ODE()
     #compute symbolic derivative
     jac = FastDifferentiation.jacobian(f_y, y)
 
+    println("number of operations $(FastDifferentiation.number_of_operations(jac))")
     #compile to executable
-    fd_exe = FastDifferentiation.make_function(jac, y, in_place=true)
+    fd_exe = FastDifferentiation.make_function(jac, y, in_place=true, init_with_zeros=true)
 
     ### End FD code
 
@@ -127,7 +128,7 @@ function fd_ODE()
     float_J1 = Matrix{Float64}(undef, 20, 20)
     float_y = rand(20)
 
-    return @benchmark $fd_exe($float_y, $float_J1)
+    return @benchmark $fd_exe($float_J1, $float_y)
 end
 export fd_ODE
 
@@ -154,12 +155,12 @@ function fd_ODE_sparse()
     J = similar(jac, Float64)
     Jh = rand(20, 20)
 
-    fd_exe(float_y, J)
+    fd_exe(J, float_y)
     ODE.fjac(Jh, float_y, nothing, nothing)
 
     @assert isapprox(Jh, J)
 
     #run benchmark
-    return @benchmark $fd_exe($float_y, $J)
+    return @benchmark $fd_exe($J, $float_y)
 end
 export fd_ODE_sparse
